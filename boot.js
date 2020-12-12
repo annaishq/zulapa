@@ -31,6 +31,20 @@ exports.filter = filter;
 
 /***/ }),
 
+/***/ 387:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.hover = void 0;
+const hover = (ctx, { name }) => {
+    ctx.state.keoda.hover = name;
+};
+exports.hover = hover;
+
+
+/***/ }),
+
 /***/ 584:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
@@ -47,6 +61,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__webpack_require__(669), exports);
+__exportStar(__webpack_require__(387), exports);
 __exportStar(__webpack_require__(634), exports);
 
 
@@ -366,7 +381,7 @@ const ID = app_1.styled.a `
 `;
 const Word = ({ className, name, popup }) => {
     const ctx = app_1.useOvermind();
-    const { filter } = ctx.state.keoda;
+    const { filter, hover } = ctx.state.keoda;
     const word = ctx.state.keoda.words[name];
     if (!word) {
         // Should never happen
@@ -390,14 +405,14 @@ const Word = ({ className, name, popup }) => {
     return (React.createElement(WordEntry, { className: classnames_1.default('Word', className, {
             popup,
             selected: name === ctx.state.keoda.selected,
-        }) },
+        }), onMouseEnter: hover === name ? undefined : () => ctx.actions.keoda.hover({ name }) },
         !popup && React.createElement(ID, { id: name }),
         React.createElement(Name, { className: "Name" },
             React.createElement("span", null, word.name)),
         React.createElement(Definitions, null,
             types_1.DEF_KEYS.map(key => word[key] ? (React.createElement(Definition, { key: key },
                 React.createElement(DefType, { className: classnames_1.default(key, { selected: key === highKey }), onClick: () => ctx.actions.keoda.filter({ type: 'type', key }) }, key),
-                key === 'etym' || key === 'see' ? (React.createElement(List_1.List, { className: key, words: word[key], popup: popup })) : (React.createElement(DefText, null, word[key])))) : null),
+                key === 'etym' || key === 'see' ? (React.createElement(List_1.List, { className: key, words: word[key], popup: popup || hover === name })) : (React.createElement(DefText, null, word[key])))) : null),
             word.desc && React.createElement(Definition, { className: "desc" }, word.desc))));
 };
 exports.Word = Word;
