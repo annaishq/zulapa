@@ -150,12 +150,11 @@ const Word_1 = __webpack_require__(491);
 const Wrapper = app_1.styled.div `
   cursor: pointer;
   border-bottom: 1px solid #397d7d;
-  position: relative;
   margin-right: 8px;
-  & > .popup {
+  & .Ref > .popup {
     display: none;
   }
-  &:hover > .popup {
+  &:hover .Ref > .popup {
     display: flex;
   }
 `;
@@ -167,11 +166,17 @@ const Anchor = app_1.styled.a `
     color: #397d7d;
   }
 `;
+const Ref = app_1.styled.div `
+  position: absolute;
+  left: 0;
+  bottom: 0;
+`;
 const Link = ({ className, name, popup }) => {
     app_1.useOvermind();
     return (React.createElement(Wrapper, { className: className },
         React.createElement(Anchor, { href: `#${name}` }, name),
-        !popup && React.createElement(Word_1.Word, { name: name, popup: true })));
+        !popup && (React.createElement(Ref, { className: "Ref" },
+            React.createElement(Word_1.Word, { name: name, popup: true })))));
 };
 exports.Link = Link;
 
@@ -249,8 +254,8 @@ const WordEntry = app_1.styled.div `
   }
   &.popup {
     position: absolute;
-    top: 28px;
-    left: -38px;
+    top: 0;
+    left: -15px;
     box-shadow: 8px 8px 20px #00000070;
     z-index: 3;
   }
