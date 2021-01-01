@@ -326,6 +326,263 @@ module.exports = function (x) {
 
 /***/ }),
 
+/***/ 8234:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var repeat = __webpack_require__(6464)
+
+module.exports = markdownTable
+
+var trailingWhitespace = / +$/
+
+// Characters.
+var space = ' '
+var lineFeed = '\n'
+var dash = '-'
+var colon = ':'
+var verticalBar = '|'
+
+var x = 0
+var C = 67
+var L = 76
+var R = 82
+var c = 99
+var l = 108
+var r = 114
+
+// Create a table from a matrix of strings.
+function markdownTable(table, options) {
+  var settings = options || {}
+  var padding = settings.padding !== false
+  var start = settings.delimiterStart !== false
+  var end = settings.delimiterEnd !== false
+  var align = (settings.align || []).concat()
+  var alignDelimiters = settings.alignDelimiters !== false
+  var alignments = []
+  var stringLength = settings.stringLength || defaultStringLength
+  var rowIndex = -1
+  var rowLength = table.length
+  var cellMatrix = []
+  var sizeMatrix = []
+  var row = []
+  var sizes = []
+  var longestCellByColumn = []
+  var mostCellsPerRow = 0
+  var cells
+  var columnIndex
+  var columnLength
+  var largest
+  var size
+  var cell
+  var lines
+  var line
+  var before
+  var after
+  var code
+
+  // This is a superfluous loop if we don’t align delimiters, but otherwise we’d
+  // do superfluous work when aligning, so optimize for aligning.
+  while (++rowIndex < rowLength) {
+    cells = table[rowIndex]
+    columnIndex = -1
+    columnLength = cells.length
+    row = []
+    sizes = []
+
+    if (columnLength > mostCellsPerRow) {
+      mostCellsPerRow = columnLength
+    }
+
+    while (++columnIndex < columnLength) {
+      cell = serialize(cells[columnIndex])
+
+      if (alignDelimiters === true) {
+        size = stringLength(cell)
+        sizes[columnIndex] = size
+
+        largest = longestCellByColumn[columnIndex]
+
+        if (largest === undefined || size > largest) {
+          longestCellByColumn[columnIndex] = size
+        }
+      }
+
+      row.push(cell)
+    }
+
+    cellMatrix[rowIndex] = row
+    sizeMatrix[rowIndex] = sizes
+  }
+
+  // Figure out which alignments to use.
+  columnIndex = -1
+  columnLength = mostCellsPerRow
+
+  if (typeof align === 'object' && 'length' in align) {
+    while (++columnIndex < columnLength) {
+      alignments[columnIndex] = toAlignment(align[columnIndex])
+    }
+  } else {
+    code = toAlignment(align)
+
+    while (++columnIndex < columnLength) {
+      alignments[columnIndex] = code
+    }
+  }
+
+  // Inject the alignment row.
+  columnIndex = -1
+  columnLength = mostCellsPerRow
+  row = []
+  sizes = []
+
+  while (++columnIndex < columnLength) {
+    code = alignments[columnIndex]
+    before = ''
+    after = ''
+
+    if (code === l) {
+      before = colon
+    } else if (code === r) {
+      after = colon
+    } else if (code === c) {
+      before = colon
+      after = colon
+    }
+
+    // There *must* be at least one hyphen-minus in each alignment cell.
+    size = alignDelimiters
+      ? Math.max(
+          1,
+          longestCellByColumn[columnIndex] - before.length - after.length
+        )
+      : 1
+
+    cell = before + repeat(dash, size) + after
+
+    if (alignDelimiters === true) {
+      size = before.length + size + after.length
+
+      if (size > longestCellByColumn[columnIndex]) {
+        longestCellByColumn[columnIndex] = size
+      }
+
+      sizes[columnIndex] = size
+    }
+
+    row[columnIndex] = cell
+  }
+
+  // Inject the alignment row.
+  cellMatrix.splice(1, 0, row)
+  sizeMatrix.splice(1, 0, sizes)
+
+  rowIndex = -1
+  rowLength = cellMatrix.length
+  lines = []
+
+  while (++rowIndex < rowLength) {
+    row = cellMatrix[rowIndex]
+    sizes = sizeMatrix[rowIndex]
+    columnIndex = -1
+    columnLength = mostCellsPerRow
+    line = []
+
+    while (++columnIndex < columnLength) {
+      cell = row[columnIndex] || ''
+      before = ''
+      after = ''
+
+      if (alignDelimiters === true) {
+        size = longestCellByColumn[columnIndex] - (sizes[columnIndex] || 0)
+        code = alignments[columnIndex]
+
+        if (code === r) {
+          before = repeat(space, size)
+        } else if (code === c) {
+          if (size % 2 === 0) {
+            before = repeat(space, size / 2)
+            after = before
+          } else {
+            before = repeat(space, size / 2 + 0.5)
+            after = repeat(space, size / 2 - 0.5)
+          }
+        } else {
+          after = repeat(space, size)
+        }
+      }
+
+      if (start === true && columnIndex === 0) {
+        line.push(verticalBar)
+      }
+
+      if (
+        padding === true &&
+        // Don’t add the opening space if we’re not aligning and the cell is
+        // empty: there will be a closing space.
+        !(alignDelimiters === false && cell === '') &&
+        (start === true || columnIndex !== 0)
+      ) {
+        line.push(space)
+      }
+
+      if (alignDelimiters === true) {
+        line.push(before)
+      }
+
+      line.push(cell)
+
+      if (alignDelimiters === true) {
+        line.push(after)
+      }
+
+      if (padding === true) {
+        line.push(space)
+      }
+
+      if (end === true || columnIndex !== columnLength - 1) {
+        line.push(verticalBar)
+      }
+    }
+
+    line = line.join('')
+
+    if (end === false) {
+      line = line.replace(trailingWhitespace, '')
+    }
+
+    lines.push(line)
+  }
+
+  return lines.join(lineFeed)
+}
+
+function serialize(value) {
+  return value === null || value === undefined ? '' : String(value)
+}
+
+function defaultStringLength(value) {
+  return value.length
+}
+
+function toAlignment(value) {
+  var code = typeof value === 'string' ? value.charCodeAt(0) : x
+
+  return code === L || code === l
+    ? l
+    : code === R || code === r
+    ? r
+    : code === C || code === c
+    ? c
+    : x
+}
+
+
+/***/ }),
+
 /***/ 6522:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -1189,6 +1446,773 @@ module.exports = __webpack_require__(2524)
 
 /***/ }),
 
+/***/ 7824:
+/***/ ((__unused_webpack_module, exports) => {
+
+exports.enter = {
+  literalAutolink: enterLiteralAutolink,
+  literalAutolinkEmail: enterLiteralAutolinkValue,
+  literalAutolinkHttp: enterLiteralAutolinkValue,
+  literalAutolinkWww: enterLiteralAutolinkValue
+}
+exports.exit = {
+  literalAutolink: exitLiteralAutolink,
+  literalAutolinkEmail: exitLiteralAutolinkEmail,
+  literalAutolinkHttp: exitLiteralAutolinkHttp,
+  literalAutolinkWww: exitLiteralAutolinkWww
+}
+
+function enterLiteralAutolink(token) {
+  this.enter({type: 'link', title: null, url: '', children: []}, token)
+}
+
+function enterLiteralAutolinkValue(token) {
+  this.config.enter.autolinkProtocol.call(this, token)
+}
+
+function exitLiteralAutolinkHttp(token) {
+  this.config.exit.autolinkProtocol.call(this, token)
+}
+
+function exitLiteralAutolinkWww(token) {
+  this.config.exit.data.call(this, token)
+  this.stack[this.stack.length - 1].url = 'http://' + this.sliceSerialize(token)
+}
+
+function exitLiteralAutolinkEmail(token) {
+  this.config.exit.autolinkEmail.call(this, token)
+}
+
+function exitLiteralAutolink(token) {
+  this.exit(token)
+}
+
+
+/***/ }),
+
+/***/ 5574:
+/***/ ((__unused_webpack_module, exports) => {
+
+var inConstruct = 'phrasing'
+var notInConstruct = ['autolink', 'link', 'image']
+
+exports.unsafe = [
+  {
+    character: '@',
+    before: '[+\\-.\\w]',
+    after: '[\\-.\\w]',
+    inConstruct: inConstruct,
+    notInConstruct: notInConstruct
+  },
+  {
+    character: '.',
+    before: '[Ww]',
+    after: '[\\-.\\w]',
+    inConstruct: inConstruct,
+    notInConstruct: notInConstruct
+  },
+  {
+    character: ':',
+    before: '[ps]',
+    after: '\\/',
+    inConstruct: inConstruct,
+    notInConstruct: notInConstruct
+  }
+]
+
+
+/***/ }),
+
+/***/ 8740:
+/***/ ((__unused_webpack_module, exports) => {
+
+exports.canContainEols = ['delete']
+exports.enter = {strikethrough: enterStrikethrough}
+exports.exit = {strikethrough: exitStrikethrough}
+
+function enterStrikethrough(token) {
+  this.enter({type: 'delete', children: []}, token)
+}
+
+function exitStrikethrough(token) {
+  this.exit(token)
+}
+
+
+/***/ }),
+
+/***/ 9888:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+var phrasing = __webpack_require__(5362)
+
+exports.unsafe = [{character: '~', inConstruct: 'phrasing'}]
+exports.handlers = {delete: handleDelete}
+
+handleDelete.peek = peekDelete
+
+function handleDelete(node, _, context) {
+  var exit = context.enter('emphasis')
+  var value = phrasing(node, context, {before: '~', after: '~'})
+  exit()
+  return '~~' + value + '~~'
+}
+
+function peekDelete() {
+  return '~'
+}
+
+
+/***/ }),
+
+/***/ 4865:
+/***/ ((__unused_webpack_module, exports) => {
+
+exports.enter = {
+  table: enterTable,
+  tableData: enterCell,
+  tableHeader: enterCell,
+  tableRow: enterRow
+}
+exports.exit = {
+  codeText: exitCodeText,
+  table: exitTable,
+  tableData: exit,
+  tableHeader: exit,
+  tableRow: exit
+}
+
+function enterTable(token) {
+  this.enter({type: 'table', align: token._align, children: []}, token)
+  this.setData('inTable', true)
+}
+
+function exitTable(token) {
+  this.exit(token)
+  this.setData('inTable')
+}
+
+function enterRow(token) {
+  this.enter({type: 'tableRow', children: []}, token)
+}
+
+function exit(token) {
+  this.exit(token)
+}
+
+function enterCell(token) {
+  this.enter({type: 'tableCell', children: []}, token)
+}
+
+// Overwrite the default code text data handler to unescape escaped pipes when
+// they are in tables.
+function exitCodeText(token) {
+  var value = this.resume()
+
+  if (this.getData('inTable')) {
+    value = value.replace(/\\([\\|])/g, replace)
+  }
+
+  this.stack[this.stack.length - 1].value = value
+  this.exit(token)
+}
+
+function replace($0, $1) {
+  // Pipes work, backslashes don’t (but can’t escape pipes).
+  return $1 === '|' ? $1 : $0
+}
+
+
+/***/ }),
+
+/***/ 3046:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+var phrasing = __webpack_require__(5362)
+var defaultInlineCode = __webpack_require__(1595)
+var markdownTable = __webpack_require__(8234)
+
+module.exports = toMarkdown
+
+function toMarkdown(options) {
+  var settings = options || {}
+  var padding = settings.tableCellPadding
+  var alignDelimiters = settings.tablePipeAlign
+  var stringLength = settings.stringLength
+  var around = padding ? ' ' : '|'
+
+  return {
+    unsafe: [
+      {character: '\r', inConstruct: 'tableCell'},
+      {character: '\n', inConstruct: 'tableCell'},
+      // A pipe, when followed by a tab or space (padding), or a dash or colon
+      // (unpadded delimiter row), could result in a table.
+      {atBreak: true, character: '|', after: '[\t :-]'},
+      // A pipe in a cell must be encoded.
+      {character: '|', inConstruct: 'tableCell'},
+      // A colon must be followed by a dash, in which case it could start a
+      // delimiter row.
+      {atBreak: true, character: ':', after: '-'},
+      // A delimiter row can also start with a dash, when followed by more
+      // dashes, a colon, or a pipe.
+      // This is a stricter version than the built in check for lists, thematic
+      // breaks, and setex heading underlines though:
+      // <https://github.com/syntax-tree/mdast-util-to-markdown/blob/51a2038/lib/unsafe.js#L57>
+      {atBreak: true, character: '-', after: '[:|-]'}
+    ],
+    handlers: {
+      table: handleTable,
+      tableRow: handleTableRow,
+      tableCell: handleTableCell,
+      inlineCode: inlineCodeWithTable
+    }
+  }
+
+  function handleTable(node, _, context) {
+    return serializeData(handleTableAsData(node, context), node.align)
+  }
+
+  // This function isn’t really used normally, because we handle rows at the
+  // table level.
+  // But, if someone passes in a table row, this ensures we make somewhat sense.
+  function handleTableRow(node, _, context) {
+    var row = handleTableRowAsData(node, context)
+    // `markdown-table` will always add an align row
+    var value = serializeData([row])
+    return value.slice(0, value.indexOf('\n'))
+  }
+
+  function handleTableCell(node, _, context) {
+    var exit = context.enter('tableCell')
+    var value = phrasing(node, context, {before: around, after: around})
+    exit()
+    return value
+  }
+
+  function serializeData(matrix, align) {
+    return markdownTable(matrix, {
+      align: align,
+      alignDelimiters: alignDelimiters,
+      padding: padding,
+      stringLength: stringLength
+    })
+  }
+
+  function handleTableAsData(node, context) {
+    var children = node.children
+    var index = -1
+    var length = children.length
+    var result = []
+    var subexit = context.enter('table')
+
+    while (++index < length) {
+      result[index] = handleTableRowAsData(children[index], context)
+    }
+
+    subexit()
+
+    return result
+  }
+
+  function handleTableRowAsData(node, context) {
+    var children = node.children
+    var index = -1
+    var length = children.length
+    var result = []
+    var subexit = context.enter('tableRow')
+
+    while (++index < length) {
+      result[index] = handleTableCell(children[index], node, context)
+    }
+
+    subexit()
+
+    return result
+  }
+
+  function inlineCodeWithTable(node, parent, context) {
+    var value = defaultInlineCode(node, parent, context)
+
+    if (context.stack.indexOf('tableCell') !== -1) {
+      value = value.replace(/\|/, '\\$&')
+    }
+
+    return value
+  }
+}
+
+
+/***/ }),
+
+/***/ 9511:
+/***/ ((__unused_webpack_module, exports) => {
+
+exports.exit = {
+  taskListCheckValueChecked: exitCheck,
+  taskListCheckValueUnchecked: exitCheck,
+  paragraph: exitParagraphWithTaskListItem
+}
+
+function exitCheck(token) {
+  // We’re always in a paragraph, in a list item.
+  this.stack[this.stack.length - 2].checked =
+    token.type === 'taskListCheckValueChecked'
+}
+
+function exitParagraphWithTaskListItem(token) {
+  var parent = this.stack[this.stack.length - 2]
+  var node = this.stack[this.stack.length - 1]
+  var siblings = parent.children
+  var head = node.children[0]
+  var index = -1
+  var firstParaghraph
+
+  if (
+    parent &&
+    parent.type === 'listItem' &&
+    typeof parent.checked === 'boolean' &&
+    head &&
+    head.type === 'text'
+  ) {
+    while (++index < siblings.length) {
+      if (siblings[index].type === 'paragraph') {
+        firstParaghraph = siblings[index]
+        break
+      }
+    }
+
+    if (firstParaghraph === node) {
+      // Must start with a space or a tab.
+      head.value = head.value.slice(1)
+
+      if (head.value.length === 0) {
+        node.children.shift()
+      } else {
+        head.position.start.column++
+        head.position.start.offset++
+        node.position.start = Object.assign({}, head.position.start)
+      }
+    }
+  }
+
+  this.exit(token)
+}
+
+
+/***/ }),
+
+/***/ 4625:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+var defaultListItem = __webpack_require__(8618)
+
+exports.unsafe = [{atBreak: true, character: '-', after: '[:|-]'}]
+
+exports.handlers = {
+  listItem: listItemWithTaskListItem
+}
+
+function listItemWithTaskListItem(node, parent, context) {
+  var value = defaultListItem(node, parent, context)
+  var head = node.children[0]
+
+  if (typeof node.checked === 'boolean' && head && head.type === 'paragraph') {
+    value = value.replace(/^(?:[*+-]|\d+\.)([\r\n]| {1,3})/, check)
+  }
+
+  return value
+
+  function check($0) {
+    return $0 + '[' + (node.checked ? 'x' : ' ') + '] '
+  }
+}
+
+
+/***/ }),
+
+/***/ 438:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+var autolinkLiteral = __webpack_require__(7824)
+var strikethrough = __webpack_require__(8740)
+var table = __webpack_require__(4865)
+var taskListItem = __webpack_require__(9511)
+
+var own = {}.hasOwnProperty
+
+module.exports = configure([
+  autolinkLiteral,
+  strikethrough,
+  table,
+  taskListItem
+])
+
+function configure(extensions) {
+  var config = {canContainEols: []}
+  var length = extensions.length
+  var index = -1
+
+  while (++index < length) {
+    extension(config, extensions[index])
+  }
+
+  return config
+}
+
+function extension(config, extension) {
+  var key
+  var left
+  var right
+
+  for (key in extension) {
+    left = own.call(config, key) ? config[key] : (config[key] = {})
+    right = extension[key]
+
+    if (key === 'canContainEols') {
+      config[key] = [].concat(left, right)
+    } else {
+      Object.assign(left, right)
+    }
+  }
+}
+
+
+/***/ }),
+
+/***/ 8135:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+var autolinkLiteral = __webpack_require__(5574)
+var strikethrough = __webpack_require__(9888)
+var table = __webpack_require__(3046)
+var taskListItem = __webpack_require__(4625)
+var configure = __webpack_require__(2564)
+
+module.exports = toMarkdown
+
+function toMarkdown(options) {
+  var config = configure(
+    {handlers: {}, join: [], unsafe: [], options: {}},
+    {
+      extensions: [autolinkLiteral, strikethrough, table(options), taskListItem]
+    }
+  )
+
+  return Object.assign(config.options, {
+    handlers: config.handlers,
+    join: config.join,
+    unsafe: config.unsafe
+  })
+}
+
+
+/***/ }),
+
+/***/ 2564:
+/***/ ((module) => {
+
+module.exports = configure
+
+function configure(base, extension) {
+  var index = -1
+  var key
+
+  // First do subextensions.
+  if (extension.extensions) {
+    while (++index < extension.extensions.length) {
+      configure(base, extension.extensions[index])
+    }
+  }
+
+  for (key in extension) {
+    if (key === 'extensions') {
+      // Empty.
+    } else if (key === 'unsafe' || key === 'join') {
+      base[key] = base[key].concat(extension[key] || [])
+    } else if (key === 'handlers') {
+      base[key] = Object.assign(base[key], extension[key] || {})
+    } else {
+      base.options[key] = extension[key]
+    }
+  }
+
+  return base
+}
+
+
+/***/ }),
+
+/***/ 1595:
+/***/ ((module) => {
+
+module.exports = inlineCode
+inlineCode.peek = inlineCodePeek
+
+function inlineCode(node) {
+  var value = node.value || ''
+  var sequence = '`'
+  var pad = ''
+
+  // If there is a single grave accent on its own in the code, use a fence of
+  // two.
+  // If there are two in a row, use one.
+  while (new RegExp('(^|[^`])' + sequence + '([^`]|$)').test(value)) {
+    sequence += '`'
+  }
+
+  // If this is not just spaces or eols (tabs don’t count), and either the
+  // first or last character are a space, eol, or tick, then pad with spaces.
+  if (
+    /[^ \r\n]/.test(value) &&
+    (/[ \r\n`]/.test(value.charAt(0)) ||
+      /[ \r\n`]/.test(value.charAt(value.length - 1)))
+  ) {
+    pad = ' '
+  }
+
+  return sequence + pad + value + pad + sequence
+}
+
+function inlineCodePeek() {
+  return '`'
+}
+
+
+/***/ }),
+
+/***/ 8618:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+module.exports = listItem
+
+var repeat = __webpack_require__(6464)
+var checkBullet = __webpack_require__(9400)
+var checkListItemIndent = __webpack_require__(6636)
+var flow = __webpack_require__(3493)
+var indentLines = __webpack_require__(2670)
+
+function listItem(node, parent, context) {
+  var bullet = checkBullet(context)
+  var listItemIndent = checkListItemIndent(context)
+  var size
+  var value
+  var exit
+
+  if (parent && parent.ordered) {
+    bullet =
+      (parent.start > -1 ? parent.start : 1) +
+      (context.options.incrementListMarker === false
+        ? 0
+        : parent.children.indexOf(node)) +
+      '.'
+  }
+
+  size = bullet.length + 1
+
+  if (
+    listItemIndent === 'tab' ||
+    (listItemIndent === 'mixed' && ((parent && parent.spread) || node.spread))
+  ) {
+    size = Math.ceil(size / 4) * 4
+  }
+
+  exit = context.enter('listItem')
+  value = indentLines(flow(node, context), map)
+  exit()
+
+  return value
+
+  function map(line, index, blank) {
+    if (index) {
+      return (blank ? '' : repeat(' ', size)) + line
+    }
+
+    return (blank ? bullet : bullet + repeat(' ', size - bullet.length)) + line
+  }
+}
+
+
+/***/ }),
+
+/***/ 9400:
+/***/ ((module) => {
+
+module.exports = checkBullet
+
+function checkBullet(context) {
+  var marker = context.options.bullet || '*'
+
+  if (marker !== '*' && marker !== '+' && marker !== '-') {
+    throw new Error(
+      'Cannot serialize items with `' +
+        marker +
+        '` for `options.bullet`, expected `*`, `+`, or `-`'
+    )
+  }
+
+  return marker
+}
+
+
+/***/ }),
+
+/***/ 6636:
+/***/ ((module) => {
+
+module.exports = checkListItemIndent
+
+function checkListItemIndent(context) {
+  var style = context.options.listItemIndent || 'tab'
+
+  if (style === 1 || style === '1') {
+    return 'one'
+  }
+
+  if (style !== 'tab' && style !== 'one' && style !== 'mixed') {
+    throw new Error(
+      'Cannot serialize items with `' +
+        style +
+        '` for `options.listItemIndent`, expected `tab`, `one`, or `mixed`'
+    )
+  }
+
+  return style
+}
+
+
+/***/ }),
+
+/***/ 3493:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+module.exports = flow
+
+var repeat = __webpack_require__(6464)
+
+function flow(parent, context) {
+  var children = parent.children || []
+  var results = []
+  var index = -1
+  var child
+
+  while (++index < children.length) {
+    child = children[index]
+
+    results.push(
+      context.handle(child, parent, context, {before: '\n', after: '\n'})
+    )
+
+    if (index + 1 < children.length) {
+      results.push(between(child, children[index + 1]))
+    }
+  }
+
+  return results.join('')
+
+  function between(left, right) {
+    var index = -1
+    var result
+
+    while (++index < context.join.length) {
+      result = context.join[index](left, right, parent, context)
+
+      if (result === true || result === 1) {
+        break
+      }
+
+      if (typeof result === 'number') {
+        return repeat('\n', 1 + Number(result))
+      }
+
+      if (result === false) {
+        return '\n\n<!---->\n\n'
+      }
+    }
+
+    return '\n\n'
+  }
+}
+
+
+/***/ }),
+
+/***/ 5362:
+/***/ ((module) => {
+
+module.exports = phrasing
+
+function phrasing(parent, context, safeOptions) {
+  var children = parent.children || []
+  var results = []
+  var index = -1
+  var before = safeOptions.before
+  var after
+  var handle
+  var child
+
+  while (++index < children.length) {
+    child = children[index]
+
+    if (index + 1 < children.length) {
+      handle = context.handle.handlers[children[index + 1].type]
+      if (handle && handle.peek) handle = handle.peek
+      after = handle
+        ? handle(children[index + 1], parent, context, {
+            before: '',
+            after: ''
+          }).charAt(0)
+        : ''
+    } else {
+      after = safeOptions.after
+    }
+
+    results.push(
+      context.handle(child, parent, context, {
+        before: before,
+        after: after
+      })
+    )
+    before = results[results.length - 1].slice(-1)
+  }
+
+  return results.join('')
+}
+
+
+/***/ }),
+
+/***/ 2670:
+/***/ ((module) => {
+
+module.exports = indentLines
+
+var eol = /\r?\n|\r/g
+
+function indentLines(value, map) {
+  var result = []
+  var start = 0
+  var line = 0
+  var match
+
+  while ((match = eol.exec(value))) {
+    one(value.slice(start, match.index))
+    result.push(match[0])
+    start = match.index + match[0].length
+    line++
+  }
+
+  one(value.slice(start))
+
+  return result.join('')
+
+  function one(value) {
+    result.push(map(value, line, !value))
+  }
+}
+
+
+/***/ }),
+
 /***/ 4999:
 /***/ ((module) => {
 
@@ -1221,6 +2245,1540 @@ function all(values) {
   }
 
   return result.join('')
+}
+
+
+/***/ }),
+
+/***/ 7539:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+module.exports = __webpack_require__(2346)
+
+
+/***/ }),
+
+/***/ 2346:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+var asciiAlpha = __webpack_require__(6734)
+var asciiAlphanumeric = __webpack_require__(6712)
+var asciiControl = __webpack_require__(9696)
+var markdownLineEnding = __webpack_require__(7238)
+var unicodePunctuation = __webpack_require__(6996)
+var unicodeWhitespace = __webpack_require__(395)
+
+var www = {tokenize: tokenizeWww}
+var http = {tokenize: tokenizeHttp}
+var domain = {tokenize: tokenizeDomain}
+var path = {tokenize: tokenizePath}
+var punctuation = {tokenize: tokenizePunctuation}
+var domainPunctuation = {tokenize: tokenizeDomainPunctuation}
+var paren = {tokenize: tokenizeParen}
+var namedCharacterReference = {tokenize: tokenizeNamedCharacterReference}
+
+var wwwAutolink = {tokenize: tokenizeWwwAutolink, previous: previous}
+var httpAutolink = {tokenize: tokenizeHttpAutolink, previous: previous}
+var emailAutolink = {tokenize: tokenizeEmailAutolink, previous: previous}
+
+var text = {}
+
+// Export hooked constructs.
+exports.text = text
+
+// `0`
+var code = 48
+
+// While the code is smaller than `{`.
+while (code < 123) {
+  text[code] = emailAutolink
+  code++
+  // Jump from `:` -> `A`
+  if (code === 58) code = 65
+  // Jump from `[` -> `a`
+  else if (code === 91) code = 97
+}
+
+// `+`
+text[43] = emailAutolink
+// `-`
+text[45] = emailAutolink
+// `.`
+text[46] = emailAutolink
+// `_`
+text[95] = emailAutolink
+// `h`.
+text[72] = [emailAutolink, httpAutolink]
+text[104] = [emailAutolink, httpAutolink]
+// `w`.
+text[87] = [emailAutolink, wwwAutolink]
+text[119] = [emailAutolink, wwwAutolink]
+
+function tokenizeEmailAutolink(effects, ok, nok) {
+  var self = this
+  var hasDot
+
+  return start
+
+  function start(code) {
+    /* istanbul ignore next - hooks. */
+    if (!gfmAtext(code) || !previous(self.previous)) {
+      return nok(code)
+    }
+
+    effects.enter('literalAutolink')
+    effects.enter('literalAutolinkEmail')
+    return atext(code)
+  }
+
+  function atext(code) {
+    if (gfmAtext(code)) {
+      effects.consume(code)
+      return atext
+    }
+
+    // `@`
+    if (code === 64) {
+      effects.consume(code)
+      return label
+    }
+
+    return nok(code)
+  }
+
+  function label(code) {
+    // `.`
+    if (code === 46) {
+      return effects.check(punctuation, done, dotContinuation)(code)
+    }
+
+    if (
+      // `-`
+      code === 45 ||
+      // `_`
+      code === 95
+    ) {
+      return effects.check(punctuation, nok, dashOrUnderscoreContinuation)(code)
+    }
+
+    if (asciiAlphanumeric(code)) {
+      effects.consume(code)
+      return label
+    }
+
+    return done(code)
+  }
+
+  function dotContinuation(code) {
+    effects.consume(code)
+    hasDot = true
+    return label
+  }
+
+  function dashOrUnderscoreContinuation(code) {
+    effects.consume(code)
+    return afterDashOrUnderscore
+  }
+
+  function afterDashOrUnderscore(code) {
+    // `.`
+    if (code === 46) {
+      return effects.check(punctuation, nok, dotContinuation)(code)
+    }
+
+    return label(code)
+  }
+
+  function done(code) {
+    if (hasDot) {
+      effects.exit('literalAutolinkEmail')
+      effects.exit('literalAutolink')
+      return ok(code)
+    }
+
+    return nok(code)
+  }
+}
+
+function tokenizeWwwAutolink(effects, ok, nok) {
+  var self = this
+
+  return start
+
+  function start(code) {
+    /* istanbul ignore next - hooks. */
+    if ((code !== 87 && code - 32 !== 87) || !previous(self.previous)) {
+      return nok(code)
+    }
+
+    effects.enter('literalAutolink')
+    effects.enter('literalAutolinkWww')
+    return effects.check(
+      www,
+      effects.attempt(domain, effects.attempt(path, done), nok),
+      nok
+    )(code)
+  }
+
+  function done(code) {
+    effects.exit('literalAutolinkWww')
+    effects.exit('literalAutolink')
+    return ok(code)
+  }
+}
+
+function tokenizeHttpAutolink(effects, ok, nok) {
+  var self = this
+
+  return start
+
+  function start(code) {
+    /* istanbul ignore next - hooks. */
+    if ((code !== 72 && code - 32 !== 72) || !previous(self.previous)) {
+      return nok(code)
+    }
+
+    effects.enter('literalAutolink')
+    effects.enter('literalAutolinkHttp')
+    return effects.check(
+      http,
+      effects.attempt(domain, effects.attempt(path, done), nok),
+      nok
+    )(code)
+  }
+
+  function done(code) {
+    effects.exit('literalAutolinkHttp')
+    effects.exit('literalAutolink')
+    return ok(code)
+  }
+}
+
+function tokenizeHttp(effects, ok, nok) {
+  return start
+
+  function start(code) {
+    // Assume a `h`.
+    effects.consume(code)
+    return t1
+  }
+
+  function t1(code) {
+    // `t`
+    if (code === 84 || code - 32 === 84) {
+      effects.consume(code)
+      return t2
+    }
+
+    return nok(code)
+  }
+
+  function t2(code) {
+    // `t`
+    if (code === 84 || code - 32 === 84) {
+      effects.consume(code)
+      return p
+    }
+
+    return nok(code)
+  }
+
+  function p(code) {
+    // `p`
+    if (code === 80 || code - 32 === 80) {
+      effects.consume(code)
+      return s
+    }
+
+    return nok(code)
+  }
+
+  function s(code) {
+    // `s`
+    if (code === 83 || code - 32 === 83) {
+      effects.consume(code)
+      return colon
+    }
+
+    return colon(code)
+  }
+
+  function colon(code) {
+    // `:`
+    if (code === 58) {
+      effects.consume(code)
+      return slash1
+    }
+
+    return nok(code)
+  }
+
+  function slash1(code) {
+    // `/`
+    if (code === 47) {
+      effects.consume(code)
+      return slash2
+    }
+
+    return nok(code)
+  }
+
+  function slash2(code) {
+    // `/`
+    if (code === 47) {
+      effects.consume(code)
+      return after
+    }
+
+    return nok(code)
+  }
+
+  function after(code) {
+    return asciiControl(code) ||
+      unicodeWhitespace(code) ||
+      unicodePunctuation(code)
+      ? nok(code)
+      : ok(code)
+  }
+}
+
+function tokenizeWww(effects, ok, nok) {
+  return start
+
+  function start(code) {
+    // Assume a `w`.
+    effects.consume(code)
+    return w2
+  }
+
+  function w2(code) {
+    // `w`
+    if (code === 87 || code - 32 === 87) {
+      effects.consume(code)
+      return w3
+    }
+
+    return nok(code)
+  }
+
+  function w3(code) {
+    // `w`
+    if (code === 87 || code - 32 === 87) {
+      effects.consume(code)
+      return dot
+    }
+
+    return nok(code)
+  }
+
+  function dot(code) {
+    // `.`
+    if (code === 46) {
+      effects.consume(code)
+      return after
+    }
+
+    return nok(code)
+  }
+
+  function after(code) {
+    return code === null || markdownLineEnding(code) ? nok(code) : ok(code)
+  }
+}
+
+function tokenizeDomain(effects, ok, nok) {
+  var opened
+  var hasUnderscoreInLastSegment
+  var hasUnderscoreInLastLastSegment
+
+  return domain
+
+  function domain(code) {
+    if (
+      // `/`
+      code === 47 ||
+      asciiControl(code) ||
+      unicodeWhitespace(code)
+    ) {
+      return done(code)
+    }
+
+    // `&`
+    if (code === 38) {
+      return effects.check(
+        namedCharacterReference,
+        done,
+        punctuationContinuation
+      )(code)
+    }
+
+    if (
+      // `.`
+      code === 46 ||
+      trailingPunctuation(code)
+    ) {
+      return effects.check(
+        domainPunctuation,
+        done,
+        punctuationContinuation
+      )(code)
+    }
+
+    open()
+    effects.consume(code)
+    return domain
+  }
+
+  function punctuationContinuation(code) {
+    // `.`
+    if (code === 46) {
+      hasUnderscoreInLastLastSegment = hasUnderscoreInLastSegment
+      hasUnderscoreInLastSegment = undefined
+      open()
+      effects.consume(code)
+      return domain
+    }
+
+    // `_`
+    if (code === 95) hasUnderscoreInLastSegment = true
+
+    open()
+    effects.consume(code)
+    return domain
+  }
+
+  function open() {
+    if (!opened) {
+      effects.enter('literalAutolinkDomain')
+      opened = true
+    }
+  }
+
+  function done(code) {
+    if (
+      opened &&
+      !hasUnderscoreInLastLastSegment &&
+      !hasUnderscoreInLastSegment
+    ) {
+      effects.exit('literalAutolinkDomain')
+      return ok(code)
+    }
+
+    return nok(code)
+  }
+}
+
+function tokenizePath(effects, ok) {
+  var balance = 0
+
+  return start
+
+  function start(code) {
+    // `/`
+    return code === 47 ? atPathStart(code) : ok(code)
+  }
+
+  function atPathStart(code) {
+    effects.enter('literalAutolinkPath')
+    return inPath(code)
+  }
+
+  function inPath(code) {
+    // `&`
+    if (code === 38) {
+      return effects.check(
+        namedCharacterReference,
+        atPathEnd,
+        continuedPunctuation
+      )(code)
+    }
+
+    // `(`
+    if (code === 40) {
+      balance++
+    }
+
+    // `)`
+    if (code === 41) {
+      return effects.check(paren, parenAtPathEnd, continuedPunctuation)(code)
+    }
+
+    if (pathEnd(code)) {
+      return atPathEnd(code)
+    }
+
+    if (trailingPunctuation(code)) {
+      return effects.check(punctuation, atPathEnd, continuedPunctuation)(code)
+    }
+
+    effects.consume(code)
+    return inPath
+  }
+
+  function continuedPunctuation(code) {
+    effects.consume(code)
+    return inPath
+  }
+
+  function parenAtPathEnd(code) {
+    balance--
+    return balance < 0 ? atPathEnd(code) : continuedPunctuation(code)
+  }
+
+  function atPathEnd(code) {
+    effects.exit('literalAutolinkPath')
+    return ok(code)
+  }
+}
+
+function tokenizeNamedCharacterReference(effects, ok, nok) {
+  return start
+
+  function start(code) {
+    // Assume an ampersand.
+    effects.enter('literalAutolinkCharacterReferenceNamed')
+    effects.consume(code)
+    return inside
+  }
+
+  function inside(code) {
+    if (asciiAlpha(code)) {
+      effects.consume(code)
+      return inside
+    }
+
+    // `;`
+    if (code === 59) {
+      effects.consume(code)
+      return after
+    }
+
+    return nok(code)
+  }
+
+  function after(code) {
+    // If the named character reference is followed by the end of the path, it’s
+    // not continued punctuation.
+    effects.exit('literalAutolinkCharacterReferenceNamed')
+    return pathEnd(code) ? ok(code) : nok(code)
+  }
+}
+
+function tokenizeParen(effects, ok, nok) {
+  return start
+
+  function start(code) {
+    // Assume a right paren.
+    effects.enter('literalAutolinkParen')
+    effects.consume(code)
+    return after
+  }
+
+  function after(code) {
+    // If the punctuation marker is followed by the end of the path, it’s not
+    // continued punctuation.
+    effects.exit('literalAutolinkParen')
+    return pathEnd(code) ||
+      // `)`
+      code === 41
+      ? ok(code)
+      : nok(code)
+  }
+}
+
+function tokenizePunctuation(effects, ok, nok) {
+  return start
+
+  function start(code) {
+    effects.enter('literalAutolinkPunctuation')
+    // Always a valid trailing punctuation marker.
+    effects.consume(code)
+    return after
+  }
+
+  function after(code) {
+    // If the punctuation marker is followed by the end of the path, it’s not
+    // continued punctuation.
+    effects.exit('literalAutolinkPunctuation')
+    return pathEnd(code) ? ok(code) : nok(code)
+  }
+}
+
+function tokenizeDomainPunctuation(effects, ok, nok) {
+  return start
+
+  function start(code) {
+    effects.enter('literalAutolinkPunctuation')
+    // Always a valid trailing punctuation marker.
+    effects.consume(code)
+    return after
+  }
+
+  function after(code) {
+    // Check the next.
+    if (trailingPunctuation(code)) {
+      effects.consume(code)
+      return after
+    }
+
+    // If the punctuation marker is followed by the end of the path, it’s not
+    // continued punctuation.
+    effects.exit('literalAutolinkPunctuation')
+    return pathEnd(code) ? ok(code) : nok(code)
+  }
+}
+
+function trailingPunctuation(code) {
+  return (
+    // `!`
+    code === 33 ||
+    // `"`
+    code === 34 ||
+    // `'`
+    code === 39 ||
+    // `)`
+    code === 41 ||
+    // `*`
+    code === 42 ||
+    // `,`
+    code === 44 ||
+    // `.`
+    code === 46 ||
+    // `:`
+    code === 58 ||
+    // `;`
+    code === 59 ||
+    // `<`
+    code === 60 ||
+    // `?`
+    code === 63 ||
+    // `_`.
+    code === 95 ||
+    // `~`
+    code === 126
+  )
+}
+
+function pathEnd(code) {
+  return (
+    // EOF.
+    code === null ||
+    // CR, LF, CRLF, HT, VS.
+    code < 0 ||
+    // Space.
+    code === 32 ||
+    // `<`
+    code === 60
+  )
+}
+
+function gfmAtext(code) {
+  return (
+    // `+`
+    code === 43 ||
+    // `-`
+    code === 45 ||
+    // `.`
+    code === 46 ||
+    // `_`
+    code === 95 ||
+    asciiAlphanumeric(code)
+  )
+}
+
+function previous(code) {
+  return (
+    // EOF.
+    code === null ||
+    // CR, LF, CRLF, HT, VS.
+    code < 0 ||
+    // Space.
+    code === 32 ||
+    // `(`
+    code === 40 ||
+    // `*`
+    code === 42 ||
+    // `_`.
+    code === 95 ||
+    // `~`
+    code === 126
+  )
+}
+
+
+/***/ }),
+
+/***/ 3490:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+module.exports = create
+
+var classifyCharacter = __webpack_require__(9444)
+var chunkedSplice = __webpack_require__(6808)
+var resolveAll = __webpack_require__(8280)
+var shallow = __webpack_require__(5923)
+
+function create(options) {
+  var settings = options || {}
+  var single = settings.singleTilde
+  var tokenizer = {
+    tokenize: tokenizeStrikethrough,
+    resolveAll: resolveAllStrikethrough
+  }
+
+  if (single === null || single === undefined) {
+    single = true
+  }
+
+  return {text: {126: tokenizer}, insideSpan: {null: tokenizer}}
+
+  // Take events and resolve strikethrough.
+  function resolveAllStrikethrough(events, context) {
+    var index = -1
+    var strikethrough
+    var text
+    var open
+    var nextEvents
+
+    // Walk through all events.
+    while (++index < events.length) {
+      // Find a token that can close.
+      if (
+        events[index][0] === 'enter' &&
+        events[index][1].type === 'strikethroughSequenceTemporary' &&
+        events[index][1]._close
+      ) {
+        open = index
+
+        // Now walk back to find an opener.
+        while (open--) {
+          // Find a token that can open the closer.
+          if (
+            events[open][0] === 'exit' &&
+            events[open][1].type === 'strikethroughSequenceTemporary' &&
+            events[open][1]._open &&
+            // If the sizes are the same:
+            events[index][1].end.offset - events[index][1].start.offset ===
+              events[open][1].end.offset - events[open][1].start.offset
+          ) {
+            events[index][1].type = 'strikethroughSequence'
+            events[open][1].type = 'strikethroughSequence'
+
+            strikethrough = {
+              type: 'strikethrough',
+              start: shallow(events[open][1].start),
+              end: shallow(events[index][1].end)
+            }
+
+            text = {
+              type: 'strikethroughText',
+              start: shallow(events[open][1].end),
+              end: shallow(events[index][1].start)
+            }
+
+            // Opening.
+            nextEvents = [
+              ['enter', strikethrough, context],
+              ['enter', events[open][1], context],
+              ['exit', events[open][1], context],
+              ['enter', text, context]
+            ]
+
+            // Between.
+            chunkedSplice(
+              nextEvents,
+              nextEvents.length,
+              0,
+              resolveAll(
+                context.parser.constructs.insideSpan.null,
+                events.slice(open + 1, index),
+                context
+              )
+            )
+
+            // Closing.
+            chunkedSplice(nextEvents, nextEvents.length, 0, [
+              ['exit', text, context],
+              ['enter', events[index][1], context],
+              ['exit', events[index][1], context],
+              ['exit', strikethrough, context]
+            ])
+
+            chunkedSplice(events, open - 1, index - open + 3, nextEvents)
+
+            index = open + nextEvents.length - 2
+            break
+          }
+        }
+      }
+    }
+
+    return removeRemainingSequences(events)
+  }
+
+  function removeRemainingSequences(events) {
+    var index = -1
+    var length = events.length
+
+    while (++index < length) {
+      if (events[index][1].type === 'strikethroughSequenceTemporary') {
+        events[index][1].type = 'data'
+      }
+    }
+
+    return events
+  }
+
+  function tokenizeStrikethrough(effects, ok, nok) {
+    var previous = this.previous
+    var events = this.events
+    var size = 0
+
+    return start
+
+    function start(code) {
+      if (
+        code !== 126 ||
+        (previous === 126 &&
+          events[events.length - 1][1].type !== 'characterEscape')
+      ) {
+        return nok(code)
+      }
+
+      effects.enter('strikethroughSequenceTemporary')
+      return more(code)
+    }
+
+    function more(code) {
+      var before = classifyCharacter(previous)
+      var token
+      var after
+
+      if (code === 126) {
+        // If this is the third marker, exit.
+        if (size > 1) return nok(code)
+        effects.consume(code)
+        size++
+        return more
+      }
+
+      if (size < 2 && !single) return nok(code)
+      token = effects.exit('strikethroughSequenceTemporary')
+      after = classifyCharacter(code)
+      token._open = !after || (after === 2 && before)
+      token._close = !before || (before === 2 && after)
+      return ok(code)
+    }
+  }
+}
+
+
+/***/ }),
+
+/***/ 1286:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+module.exports = __webpack_require__(3993)
+
+
+/***/ }),
+
+/***/ 3993:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+exports.flow = {
+  null: {tokenize: tokenizeTable, resolve: resolveTable, interruptible: true}
+}
+
+var createSpace = __webpack_require__(2928)
+
+var setextUnderlineMini = {tokenize: tokenizeSetextUnderlineMini, partial: true}
+var nextPrefixedOrBlank = {tokenize: tokenizeNextPrefixedOrBlank, partial: true}
+
+function resolveTable(events, context) {
+  var length = events.length
+  var index = -1
+  var token
+  var inHead
+  var inDelimiterRow
+  var inRow
+  var cell
+  var content
+  var text
+  var contentStart
+  var contentEnd
+  var cellStart
+
+  while (++index < length) {
+    token = events[index][1]
+
+    if (inRow) {
+      if (token.type === 'temporaryTableCellContent') {
+        contentStart = contentStart || index
+        contentEnd = index
+      }
+
+      if (
+        // Combine separate content parts into one.
+        (token.type === 'tableCellDivider' || token.type === 'tableRow') &&
+        contentEnd
+      ) {
+        content = {
+          type: 'tableContent',
+          start: events[contentStart][1].start,
+          end: events[contentEnd][1].end
+        }
+        text = {
+          type: 'chunkText',
+          start: content.start,
+          end: content.end,
+          contentType: 'text'
+        }
+
+        events.splice(
+          contentStart,
+          contentEnd - contentStart + 1,
+          ['enter', content, context],
+          ['enter', text, context],
+          ['exit', text, context],
+          ['exit', content, context]
+        )
+        index -= contentEnd - contentStart - 3
+        length = events.length
+        contentStart = undefined
+        contentEnd = undefined
+      }
+    }
+
+    if (
+      events[index][0] === 'exit' &&
+      (token.type === 'tableCellDivider' || token.type === 'tableRow') &&
+      cellStart &&
+      cellStart + 1 < index
+    ) {
+      cell = {
+        type: inDelimiterRow
+          ? 'tableDelimiter'
+          : inHead
+          ? 'tableHeader'
+          : 'tableData',
+        start: events[cellStart][1].start,
+        end: events[index][1].end
+      }
+      events.splice(index + (token.type === 'tableCellDivider' ? 1 : 0), 0, [
+        'exit',
+        cell,
+        context
+      ])
+      events.splice(cellStart, 0, ['enter', cell, context])
+      index += 2
+      length = events.length
+      cellStart = index + 1
+    }
+
+    if (token.type === 'tableRow') {
+      inRow = events[index][0] === 'enter'
+
+      if (inRow) {
+        cellStart = index + 1
+      }
+    }
+
+    if (token.type === 'tableDelimiterRow') {
+      inDelimiterRow = events[index][0] === 'enter'
+
+      if (inDelimiterRow) {
+        cellStart = index + 1
+      }
+    }
+
+    if (token.type === 'tableHead') {
+      inHead = events[index][0] === 'enter'
+    }
+  }
+
+  return events
+}
+
+function tokenizeTable(effects, ok, nok) {
+  var align = []
+  var tableHeaderCount = 0
+  var seenDelimiter
+  var hasDash
+
+  return start
+
+  function start(code) {
+    /* istanbul ignore if - used to be passed in beta micromark versions. */
+    if (code === null || code === -5 || code === -4 || code === -3) {
+      return nok(code)
+    }
+
+    effects.enter('table')._align = align
+    effects.enter('tableHead')
+    effects.enter('tableRow')
+
+    // If we start with a pipe, we open a cell marker.
+    if (code === 124) {
+      return cellDividerHead(code)
+    }
+
+    tableHeaderCount++
+    effects.enter('temporaryTableCellContent')
+    // Can’t be space or eols at the start of a construct, so we’re in a cell.
+    return inCellContentHead(code)
+  }
+
+  function cellDividerHead(code) {
+    // Always a pipe.
+    effects.enter('tableCellDivider')
+    effects.consume(code)
+    effects.exit('tableCellDivider')
+    seenDelimiter = true
+    return cellBreakHead
+  }
+
+  function cellBreakHead(code) {
+    // EOF, CR, LF, CRLF.
+    if (code === null || code === -5 || code === -4 || code === -3) {
+      return atRowEndHead(code)
+    }
+
+    // HT, VS, SP.
+    if (code === -2 || code === -1 || code === 32) {
+      effects.enter('whitespace')
+      effects.consume(code)
+      return inWhitespaceHead
+    }
+
+    if (seenDelimiter) {
+      seenDelimiter = undefined
+      tableHeaderCount++
+    }
+
+    // `|`
+    if (code === 124) {
+      return cellDividerHead(code)
+    }
+
+    // Anything else is cell content.
+    effects.enter('temporaryTableCellContent')
+    return inCellContentHead(code)
+  }
+
+  function inWhitespaceHead(code) {
+    // HT, VS, SP.
+    if (code === -2 || code === -1 || code === 32) {
+      effects.consume(code)
+      return inWhitespaceHead
+    }
+
+    effects.exit('whitespace')
+    return cellBreakHead(code)
+  }
+
+  function inCellContentHead(code) {
+    // EOF, whitespace, pipe
+    if (code === null || code < 0 || code === 32 || code === 124) {
+      effects.exit('temporaryTableCellContent')
+      return cellBreakHead(code)
+    }
+
+    effects.consume(code)
+    // `\`
+    return code === 92 ? inCellContentEscapeHead : inCellContentHead
+  }
+
+  function inCellContentEscapeHead(code) {
+    // `\` or `|`
+    if (code === 92 || code === 124) {
+      effects.consume(code)
+      return inCellContentHead
+    }
+
+    // Anything else.
+    return inCellContentHead(code)
+  }
+
+  function atRowEndHead(code) {
+    if (code === null) {
+      return nok(code)
+    }
+
+    effects.exit('tableRow')
+    effects.exit('tableHead')
+
+    // Always a line ending.
+    effects.enter('lineEnding')
+    effects.consume(code)
+    effects.exit('lineEnding')
+
+    // If a setext heading, exit.
+    return effects.check(
+      setextUnderlineMini,
+      nok,
+      // Support an indent before the delimiter row.
+      createSpace(effects, rowStartDelimiter, 'linePrefix', 4)
+    )
+  }
+
+  function rowStartDelimiter(code) {
+    // If there’s another space, or we’re at the EOL/EOF, exit.
+    if (code === null || code < 0 || code === 32) {
+      return nok(code)
+    }
+
+    effects.enter('tableDelimiterRow')
+    return atDelimiterRowBreak(code)
+  }
+
+  function atDelimiterRowBreak(code) {
+    // EOF, CR, LF, CRLF.
+    if (code === null || code === -5 || code === -4 || code === -3) {
+      return rowEndDelimiter(code)
+    }
+
+    // HT, VS, SP.
+    if (code === -2 || code === -1 || code === 32) {
+      effects.enter('whitespace')
+      effects.consume(code)
+      return inWhitespaceDelimiter
+    }
+
+    // `-`
+    if (code === 45) {
+      effects.enter('tableDelimiterFiller')
+      effects.consume(code)
+      hasDash = true
+      align.push(null)
+      return inFillerDelimiter
+    }
+
+    // `:`
+    if (code === 58) {
+      effects.enter('tableDelimiterAlignment')
+      effects.consume(code)
+      effects.exit('tableDelimiterAlignment')
+      align.push('left')
+      return afterLeftAlignment
+    }
+
+    // If we start with a pipe, we open a cell marker.
+    if (code === 124) {
+      effects.enter('tableCellDivider')
+      effects.consume(code)
+      effects.exit('tableCellDivider')
+      return atDelimiterRowBreak
+    }
+
+    return nok(code)
+  }
+
+  function inWhitespaceDelimiter(code) {
+    // HT, VS, SP.
+    if (code === -2 || code === -1 || code === 32) {
+      effects.consume(code)
+      return inWhitespaceDelimiter
+    }
+
+    effects.exit('whitespace')
+    return atDelimiterRowBreak(code)
+  }
+
+  function inFillerDelimiter(code) {
+    // `-`
+    if (code === 45) {
+      effects.consume(code)
+      return inFillerDelimiter
+    }
+
+    effects.exit('tableDelimiterFiller')
+
+    // `:`
+    if (code === 58) {
+      effects.enter('tableDelimiterAlignment')
+      effects.consume(code)
+      effects.exit('tableDelimiterAlignment')
+
+      align[align.length - 1] =
+        align[align.length - 1] === 'left' ? 'center' : 'right'
+
+      return afterRightAlignment
+    }
+
+    return atDelimiterRowBreak(code)
+  }
+
+  function afterLeftAlignment(code) {
+    // `-`
+    if (code === 45) {
+      effects.enter('tableDelimiterFiller')
+      effects.consume(code)
+      hasDash = true
+      return inFillerDelimiter
+    }
+
+    // Anything else is not ok.
+    return nok(code)
+  }
+
+  function afterRightAlignment(code) {
+    // EOF, CR, LF, CRLF.
+    if (code === null || code === -5 || code === -4 || code === -3) {
+      return rowEndDelimiter(code)
+    }
+
+    // HT, VS, SP.
+    if (code === -2 || code === -1 || code === 32) {
+      effects.enter('whitespace')
+      effects.consume(code)
+      return inWhitespaceDelimiter
+    }
+
+    // `|`
+    if (code === 124) {
+      effects.enter('tableCellDivider')
+      effects.consume(code)
+      effects.exit('tableCellDivider')
+      return atDelimiterRowBreak
+    }
+
+    return nok(code)
+  }
+
+  function rowEndDelimiter(code) {
+    effects.exit('tableDelimiterRow')
+
+    // Exit if there was no dash at all, or if the header cell count is not the
+    // delimiter cell count.
+    if (!hasDash || tableHeaderCount !== align.length) {
+      return nok(code)
+    }
+
+    if (code === null) {
+      return tableClose(code)
+    }
+
+    return effects.check(nextPrefixedOrBlank, tableClose, tableContinue)(code)
+  }
+
+  function tableClose(code) {
+    effects.exit('table')
+    return ok(code)
+  }
+
+  function tableContinue(code) {
+    // Always a line ending.
+    effects.enter('lineEnding')
+    effects.consume(code)
+    effects.exit('lineEnding')
+    // We checked that it’s not a prefixed or blank line, so we’re certain a
+    // body is coming, though it may be indented.
+    return createSpace(effects, bodyStart, 'linePrefix', 4)
+  }
+
+  function bodyStart(code) {
+    effects.enter('tableBody')
+    return rowStartBody(code)
+  }
+
+  function rowStartBody(code) {
+    effects.enter('tableRow')
+
+    // If we start with a pipe, we open a cell marker.
+    if (code === 124) {
+      return cellDividerBody(code)
+    }
+
+    effects.enter('temporaryTableCellContent')
+    // Can’t be space or eols at the start of a construct, so we’re in a cell.
+    return inCellContentBody(code)
+  }
+
+  function cellDividerBody(code) {
+    // Always a pipe.
+    effects.enter('tableCellDivider')
+    effects.consume(code)
+    effects.exit('tableCellDivider')
+    return cellBreakBody
+  }
+
+  function cellBreakBody(code) {
+    // EOF, CR, LF, CRLF.
+    if (code === null || code === -5 || code === -4 || code === -3) {
+      return atRowEndBody(code)
+    }
+
+    // HT, VS, SP.
+    if (code === -2 || code === -1 || code === 32) {
+      effects.enter('whitespace')
+      effects.consume(code)
+      return inWhitespaceBody
+    }
+
+    // `|`
+    if (code === 124) {
+      return cellDividerBody(code)
+    }
+
+    // Anything else is cell content.
+    effects.enter('temporaryTableCellContent')
+    return inCellContentBody(code)
+  }
+
+  function inWhitespaceBody(code) {
+    // HT, VS, SP.
+    if (code === -2 || code === -1 || code === 32) {
+      effects.consume(code)
+      return inWhitespaceBody
+    }
+
+    effects.exit('whitespace')
+    return cellBreakBody(code)
+  }
+
+  function inCellContentBody(code) {
+    // EOF, whitespace, pipe
+    if (code === null || code < 0 || code === 32 || code === 124) {
+      effects.exit('temporaryTableCellContent')
+      return cellBreakBody(code)
+    }
+
+    effects.consume(code)
+    // `\`
+    return code === 92 ? inCellContentEscapeBody : inCellContentBody
+  }
+
+  function inCellContentEscapeBody(code) {
+    // `\` or `|`
+    if (code === 92 || code === 124) {
+      effects.consume(code)
+      return inCellContentBody
+    }
+
+    // Anything else.
+    return inCellContentBody(code)
+  }
+
+  function atRowEndBody(code) {
+    effects.exit('tableRow')
+
+    if (code === null) {
+      return tableBodyClose(code)
+    }
+
+    return effects.check(
+      nextPrefixedOrBlank,
+      tableBodyClose,
+      tableBodyContinue
+    )(code)
+  }
+
+  function tableBodyClose(code) {
+    effects.exit('tableBody')
+    return tableClose(code)
+  }
+
+  function tableBodyContinue(code) {
+    // Always a line ending.
+    effects.enter('lineEnding')
+    effects.consume(code)
+    effects.exit('lineEnding')
+    // Support an optional prefix, then start a body row.
+    return createSpace(effects, rowStartBody, 'linePrefix', 4)
+  }
+}
+
+// Based on micromark, but that won’t work as we’re in a table, and that expects
+// content.
+// <https://github.com/micromark/micromark/blob/main/lib/tokenize/setext-underline.js>
+function tokenizeSetextUnderlineMini(effects, ok, nok) {
+  return start
+
+  function start(code) {
+    // `-`
+    if (code !== 45) {
+      return nok(code)
+    }
+
+    effects.enter('setextUnderline')
+    return sequence(code)
+  }
+
+  function sequence(code) {
+    if (code === 45) {
+      effects.consume(code)
+      return sequence
+    }
+
+    return whitespace(code)
+  }
+
+  function whitespace(code) {
+    if (code === -2 || code === -1 || code === 32) {
+      effects.consume(code)
+      return whitespace
+    }
+
+    if (code === null || code === -5 || code === -4 || code === -3) {
+      return ok(code)
+    }
+
+    return nok(code)
+  }
+}
+
+function tokenizeNextPrefixedOrBlank(effects, ok, nok) {
+  var size = 0
+
+  return start
+
+  function start(code) {
+    // This is a check, so we don’t care about tokens, but we open a bogus one
+    // so we’re valid.
+    effects.enter('check')
+    // EOL.
+    effects.consume(code)
+    return whitespace
+  }
+
+  function whitespace(code) {
+    // VS or SP.
+    if (code === -1 || code === 32) {
+      effects.consume(code)
+      size++
+      return size === 4 ? ok : whitespace
+    }
+
+    // EOF or whitespace
+    if (code === null || code < 0) {
+      return ok(code)
+    }
+
+    // Anything else.
+    return nok(code)
+  }
+}
+
+
+/***/ }),
+
+/***/ 5675:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+module.exports = __webpack_require__(7224)
+
+
+/***/ }),
+
+/***/ 7224:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+var markdownLineEndingOrSpace = __webpack_require__(8367)
+var spaceFactory = __webpack_require__(2928)
+var prefixSize = __webpack_require__(5096)
+
+var tasklistCheck = {tokenize: tokenizeTasklistCheck}
+
+exports.text = {91: tasklistCheck}
+
+function tokenizeTasklistCheck(effects, ok, nok) {
+  var self = this
+
+  return open
+
+  function open(code) {
+    if (
+      // Exit if not `[`.
+      code !== 91 ||
+      // Exit if there’s stuff before.
+      self.previous !== null ||
+      // Exit if not in the first content that is the first child of a list
+      // item.
+      !self._gfmTasklistFirstContentOfListItem
+    ) {
+      return nok(code)
+    }
+
+    effects.enter('taskListCheck')
+    effects.enter('taskListCheckMarker')
+    effects.consume(code)
+    effects.exit('taskListCheckMarker')
+    return inside
+  }
+
+  function inside(code) {
+    // Tab or space.
+    if (code === -2 || code === 32) {
+      effects.enter('taskListCheckValueUnchecked')
+      effects.consume(code)
+      effects.exit('taskListCheckValueUnchecked')
+      return close
+    }
+
+    // Upper- and lower `x`.
+    if (code === 88 || code === 120) {
+      effects.enter('taskListCheckValueChecked')
+      effects.consume(code)
+      effects.exit('taskListCheckValueChecked')
+      return close
+    }
+
+    return nok(code)
+  }
+
+  function close(code) {
+    // `]`
+    if (code === 93) {
+      effects.enter('taskListCheckMarker')
+      effects.consume(code)
+      effects.exit('taskListCheckMarker')
+      effects.exit('taskListCheck')
+      return effects.check({tokenize: spaceThenNonSpace}, ok, nok)
+    }
+
+    return nok(code)
+  }
+}
+
+function spaceThenNonSpace(effects, ok, nok) {
+  var self = this
+
+  return spaceFactory(effects, after, 'whitespace')
+
+  function after(code) {
+    return prefixSize(self.events, 'whitespace') &&
+      code !== null &&
+      !markdownLineEndingOrSpace(code)
+      ? ok(code)
+      : nok(code)
+  }
+}
+
+
+/***/ }),
+
+/***/ 2747:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+module.exports = __webpack_require__(2518)
+
+
+/***/ }),
+
+/***/ 2518:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+var combine = __webpack_require__(2952)
+var autolink = __webpack_require__(7539)
+var strikethrough = __webpack_require__(3490)
+var table = __webpack_require__(1286)
+var tasklist = __webpack_require__(5675)
+
+module.exports = create
+
+function create(options) {
+  return combine([autolink, strikethrough(options), table, tasklist])
 }
 
 
@@ -11556,6 +14114,53 @@ if (true) {
 
 /***/ }),
 
+/***/ 43:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var syntax = __webpack_require__(2747)
+var fromMarkdown = __webpack_require__(438)
+var toMarkdown = __webpack_require__(8135)
+
+var warningIssued
+
+module.exports = gfm
+
+function gfm(options) {
+  var data = this.data()
+
+  /* istanbul ignore next - old remark. */
+  if (
+    !warningIssued &&
+    ((this.Parser &&
+      this.Parser.prototype &&
+      this.Parser.prototype.blockTokenizers) ||
+      (this.Compiler &&
+        this.Compiler.prototype &&
+        this.Compiler.prototype.visitors))
+  ) {
+    warningIssued = true
+    console.warn(
+      '[remark-gfm] Warning: please upgrade to remark 13 to use this plugin'
+    )
+  }
+
+  add('micromarkExtensions', syntax(options))
+  add('fromMarkdownExtensions', fromMarkdown)
+  add('toMarkdownExtensions', toMarkdown(options))
+
+  function add(field, value) {
+    /* istanbul ignore if - other extensions. */
+    if (data[field]) data[field].push(value)
+    else data[field] = [value]
+  }
+}
+
+
+/***/ }),
+
 /***/ 2861:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -11583,6 +14188,84 @@ function parse(options) {
       })
     )
   }
+}
+
+
+/***/ }),
+
+/***/ 6464:
+/***/ ((module) => {
+
+"use strict";
+/*!
+ * repeat-string <https://github.com/jonschlinkert/repeat-string>
+ *
+ * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Licensed under the MIT License.
+ */
+
+
+
+/**
+ * Results cache
+ */
+
+var res = '';
+var cache;
+
+/**
+ * Expose `repeat`
+ */
+
+module.exports = repeat;
+
+/**
+ * Repeat the given `string` the specified `number`
+ * of times.
+ *
+ * **Example:**
+ *
+ * ```js
+ * var repeat = require('repeat-string');
+ * repeat('A', 5);
+ * //=> AAAAA
+ * ```
+ *
+ * @param {String} `string` The string to repeat
+ * @param {Number} `number` The number of times to repeat the string
+ * @return {String} Repeated string
+ * @api public
+ */
+
+function repeat(str, num) {
+  if (typeof str !== 'string') {
+    throw new TypeError('expected a string');
+  }
+
+  // cover common, quick use cases
+  if (num === 1) return str;
+  if (num === 2) return str + str;
+
+  var max = str.length * num;
+  if (cache !== str || typeof cache === 'undefined') {
+    cache = str;
+    res = '';
+  } else if (res.length >= max) {
+    return res.substr(0, max);
+  }
+
+  while (max > res.length && num > 1) {
+    if (num & 1) {
+      res += str;
+    }
+
+    num >>= 1;
+    str += str;
+  }
+
+  res += str;
+  res = res.substr(0, max);
+  return res;
 }
 
 
