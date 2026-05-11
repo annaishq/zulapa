@@ -38,6 +38,45 @@ function ipaReaderUrl(ipaText) {
   return "https://ipa-reader.com/?text=" + q + "&voice=Zeina";
 }
 
+function IpaInline({ ipaText }) {
+  const map = window.ZULAPA_PHON_TO_KEY || {};
+  const key = map[ipaText];
+
+  async function onActivate(e) {
+    e.preventDefault();
+    if (key != null && typeof window.resolveIpaAudioUrl === "function") {
+      const url = await window.resolveIpaAudioUrl(ipaText);
+      if (url) {
+        try {
+          const a = new Audio(url);
+          await a.play();
+        } catch (_) {}
+        return;
+      }
+    }
+    window.open(ipaReaderUrl(ipaText), "_blank");
+  }
+
+  if (key != null) {
+    return (
+      <button type="button" className="k-ipa-link" onClick={onActivate} title="Play pronunciation (falls back to IPA Reader)">
+        {ipaText}
+      </button>
+    );
+  }
+  return (
+    <a
+      className="k-ipa-link"
+      href={ipaReaderUrl(ipaText)}
+      target="_blank"
+      rel="noopener noreferrer"
+      title="Open IPA Reader"
+    >
+      {ipaText}
+    </a>
+  );
+}
+
 /* ----- Render inline markdown: `code`, /ipa/, images, [text](word-X|…), **b**, *i* ----- */
 function renderInline(text, ctx) {
   const parts = [];
@@ -49,17 +88,7 @@ function renderInline(text, ctx) {
       parts.push(<code key={i++}>{m[1]}</code>);
     } else if (m[2] !== undefined && m[0][0] === "/") {
       const ipaText = m[0];
-      parts.push(
-        <a
-          key={i++}
-          className="k-ipa-link"
-          href={ipaReaderUrl(ipaText)}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {ipaText}
-        </a>
-      );
+      parts.push(<IpaInline key={i++} ipaText={ipaText} />);
     } else if (m[0].startsWith("!")) {
       parts.push(
         <img key={i++} className="art__mdimg" src={m[4]} alt={m[3] || ""} loading="lazy" />

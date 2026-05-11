@@ -1,0 +1,34 @@
+# Dependencies (any package root)
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets / local env
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs & caches
+dist/
+build/
+.next/
+.turbo/
+coverage/
+*.tsbuildinfo
+.cache/
+
+# Editor & tooling
+.idea/
+*.swp
+*~
+
+# Lambda deploy extras: see lambda/ipa-synthesize/.gitignore

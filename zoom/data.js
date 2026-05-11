@@ -237,6 +237,21 @@ window.dataReady = (async function loadData() {
     };
   }
 
+  let phonToKey = {};
+  let audioVoice = "Zeina";
+  try {
+    const al = await fetch("audio-allowlist.json", { cache: "no-store" });
+    if (al.ok) {
+      const j = await al.json();
+      phonToKey = j.phonToKey || {};
+      if (j.voice) audioVoice = j.voice;
+    }
+  } catch (e) {
+    console.warn("[zulapa] audio-allowlist.json unavailable", e);
+  }
+  window.ZULAPA_PHON_TO_KEY = phonToKey;
+  window.ZULAPA_AUDIO_VOICE = audioVoice;
+
   /* ---- expose ---- */
   window.LEX        = LEX;
   window.ARTICLES   = ARTICLES;

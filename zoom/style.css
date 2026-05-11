@@ -852,6 +852,13 @@ kbd {
   border-bottom: 1px dotted currentColor;
   cursor: pointer;
 }
+button.k-ipa-link {
+  font: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: inherit;
+}
 .k-ipa-link:hover {
   border-bottom-color: var(--cyan);
   opacity: 0.95;
