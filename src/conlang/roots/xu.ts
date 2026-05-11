@@ -13,4 +13,5 @@ export const sauxu = _.word('sauxu', {
 export const xuoda = _.word('xuoda', {
   noun: 'human',
   adj: 'human',
+  etym: () => [_.xu, _.oda],
 })

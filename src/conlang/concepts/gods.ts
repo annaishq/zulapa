@@ -26,5 +26,25 @@ Here are the ten aspects of the Mother Goddess Parvati:
 ## Mythic places
 
 * ${_.dafodil} (Underworld)
+
+## The Higher Self is not the end
+
+I and Thou (1923), Martin Buber.
+
+* ${_.phrase("The small immanent human teaches (confuses) the transcendant divine.", _.xuoda, _.a.sux, _.om)}
+* ${_.phrase("To discuss with the divine.", _.ktelapa, _.ko.ukte)}
 `,
+})
+
+export const ukte = _.word('ukte', {
+  noun: 'divine',
+  desc: () => 'The possibility of separation, the opened space for the dialog.',
+  etym: () => [_.u, _.kte],
+})
+
+export const ktelapa = _.word('ktelapa', {
+  noun: 'dialog',
+  verb: 'to discuss',
+  desc: () => 'Keeping the space open for exchange, staying separated.',
+  etym: () => [_.kte, _.lapa],
 })

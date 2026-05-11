@@ -1,10 +1,12 @@
 import { writeFileSync } from 'fs'
 import { join } from 'path'
-import { exportJSON } from '../conlib/compile'
+import { exportJSON, exportLLM, compileAll } from '../conlib/compile'
 import { entries } from './lang'
 // force compilation
 // import './words' // words is already in 'lang' what does this do ??
 
-writeFileSync(join(__dirname, '..', 'db.json'), exportJSON(entries), 'utf8')
+const compiled = compileAll(entries)
+writeFileSync(join(__dirname, '..', 'db.json'), exportJSON(compiled), 'utf8')
+exportLLM(compiled, join(__dirname, '..', '..', 'llms'))
 console.log('Updated DB.')
 export * from './roots'
