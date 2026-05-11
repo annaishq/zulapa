@@ -33,21 +33,39 @@ function ArticleLink({ slug, children, onOpen }) {
   );
 }
 
-/* ----- Render inline markdown: `code`, images ![a](u), [text](word-X|…), **b**, *i* ----- */
+function ipaReaderUrl(ipaText) {
+  const q = encodeURIComponent(ipaText);
+  return "https://ipa-reader.com/?text=" + q + "&voice=Zeina";
+}
+
+/* ----- Render inline markdown: `code`, /ipa/, images, [text](word-X|…), **b**, *i* ----- */
 function renderInline(text, ctx) {
   const parts = [];
-  const re = /`([^`]+)`|!\[([^\]]*)\]\(([^)]+)\)|\[([^\]]+)\]\(([^)]+)\)|(\*\*([^*]+)\*\*)|(\*([^*]+)\*)/g;
+  const re = /`([^`]+)`|\/([^/\n]+)\/|!\[([^\]]*)\]\(([^)]+)\)|\[([^\]]+)\]\(([^)]+)\)|(\*\*([^*]+)\*\*)|(\*([^*]+)\*)/g;
   let last = 0, m, i = 0;
   while ((m = re.exec(text))) {
     if (m.index > last) parts.push(text.slice(last, m.index));
     if (m[0][0] === "`") {
       parts.push(<code key={i++}>{m[1]}</code>);
+    } else if (m[2] !== undefined && m[0][0] === "/") {
+      const ipaText = m[0];
+      parts.push(
+        <a
+          key={i++}
+          className="k-ipa-link"
+          href={ipaReaderUrl(ipaText)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {ipaText}
+        </a>
+      );
     } else if (m[0].startsWith("!")) {
       parts.push(
-        <img key={i++} className="art__mdimg" src={m[3]} alt={m[2] || ""} loading="lazy" />
+        <img key={i++} className="art__mdimg" src={m[4]} alt={m[3] || ""} loading="lazy" />
       );
-    } else if (m[4] !== undefined) {
-      const label = m[4], target = m[5];
+    } else if (m[5] !== undefined) {
+      const label = m[5], target = m[6];
       if (target.startsWith("word-")) {
         const slug = (window.BY_WORD_ID[target] || {}).name || target.slice(5);
         parts.push(<WordLink key={i++} slug={slug} onOpen={ctx.onOpenWord}>{label}</WordLink>);
@@ -63,10 +81,10 @@ function renderInline(text, ctx) {
       } else {
         parts.push(<a key={i++} className="art__plink" href={target}>{label}</a>);
       }
-    } else if (m[7]) {
-      parts.push(<strong key={i++}>{m[7]}</strong>);
-    } else if (m[9]) {
-      parts.push(<em key={i++}>{m[9]}</em>);
+    } else if (m[8]) {
+      parts.push(<strong key={i++}>{m[8]}</strong>);
+    } else if (m[10]) {
+      parts.push(<em key={i++}>{m[10]}</em>);
     }
     last = m.index + m[0].length;
   }
@@ -284,7 +302,7 @@ function PhraseBlock({ pid, ctx, caption }) {
             )}>
               {r.head}
             </button>
-            <div className="k-gloss__ipa">{r.ipa}</div>
+            <div className="k-gloss__ipa">{renderInline(r.ipa || "", phraseCtx)}</div>
             <div className="k-gloss__script">{r.script}</div>
             <div className="k-gloss__line k-gloss__line--md">
               {glossLineNodes(line, phraseCtx)}
@@ -571,7 +589,7 @@ function WordEntry({ slug, ctx, phraseTokenId }) {
         <div className="k-entry__col-left">
           <h3 className="k-entry__word">{overlaySurface ? overlaySurface.surfaceHead : lex.head}</h3>
           <div className="k-entry__phono">
-            <span className="k-entry__ipa">{overlaySurface ? overlaySurface.surfaceIpa : lex.ipa}</span>
+            <span className="k-entry__ipa">{renderInline(String((overlaySurface ? overlaySurface.surfaceIpa : lex.ipa) || ""), ctx)}</span>
             <span className="k-entry__script">{overlaySurface ? overlaySurface.surfaceScript : lex.script}</span>
           </div>
         </div>
@@ -582,7 +600,7 @@ function WordEntry({ slug, ctx, phraseTokenId }) {
                 const cla = /^(noun|verb|adj|adv)$/.test(sense.pos) ? sense.pos : "";
                 return (
                   <div key={`${sense.pos}-${sense.gloss}-${i}`} className={"k-entry__sense" + (cla ? ` ${cla}` : "")} role="listitem">
-                    <span className="k-entry__sense-gloss">{sense.gloss}</span>
+                    <span className="k-entry__sense-gloss">{renderInline(String(sense.gloss || ""), ctx)}</span>
                     <span className="k-entry__sense-pos">{sense.pos}</span>
                   </div>
                 );
@@ -688,7 +706,7 @@ function WordEntryList({ slug, ctx }) {
     <article className="k-list">
       <div className="k-list__row">
         <h3 className="k-list__word">{lex.head}</h3>
-        <span className="k-list__ipa">{lex.ipa}</span>
+        <span className="k-list__ipa">{renderInline(String(lex.ipa || ""), ctx)}</span>
         <span className="k-list__script">{lex.script}</span>
         <span className="k-list__pos">{lex.pos}</span>
       </div>
@@ -747,7 +765,7 @@ function WordEntryTable({ slug, ctx }) {
         {rows.map(([k, v]) => (
           <React.Fragment key={k}>
             <dt>{k}</dt>
-            <dd>{v}</dd>
+            <dd>{k === "ipa" ? renderInline(String(v || ""), ctx) : v}</dd>
           </React.Fragment>
         ))}
       </dl>
