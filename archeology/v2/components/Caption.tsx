@@ -2,7 +2,7 @@ import classnames from 'classnames'
 import * as htmlToImage from 'html-to-image'
 import * as React from 'react'
 import { Comp, styled, useOvermind } from '../app'
-import { getEntry } from '../helpers/getEntry'
+import { getEntry } from '../../../src/helpers/getEntry'
 import { Entry } from './Entry'
 import { List } from './List'
 import { Markdown } from './Markdown'
@@ -87,7 +87,7 @@ function saveAs(blob: string, fileName: string) {
   elem.href = blob
   elem.download = fileName
   elem.style.display = 'none'
-  ;(document.body || document.documentElement).appendChild(elem)
+    ; (document.body || document.documentElement).appendChild(elem)
 
   if (typeof elem.click === 'function') {
     elem.click()
@@ -133,10 +133,9 @@ export const Caption: Comp<PhraseProps> = ({ className, type, id }) => {
         div.classList.remove('noCaption')
         saveAs(
           dataUrl,
-          `${
-            caption.id.replace('caption-', '') +
-            '-' +
-            (caption.cap || '').replaceAll(' ', '-')
+          `${caption.id.replace('caption-', '') +
+          '-' +
+          (caption.cap || '').replaceAll(' ', '-')
           }.png`
         )
       })

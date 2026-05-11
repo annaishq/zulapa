@@ -1,8 +1,8 @@
 import classnames from 'classnames'
 import * as React from 'react'
 import { COLORS, Comp, styled, useOvermind } from '../app'
-import { CompiledEntry, DEF_KEYS, MAIN_KEYS } from '../conlib'
-import { getEntry } from '../helpers/getEntry'
+import { CompiledEntry, DEF_KEYS, MAIN_KEYS } from '../../../src/conlib'
+import { getEntry } from '../../../src/helpers/getEntry'
 import { Link } from './Link'
 import { List } from './List'
 import { Markdown } from './Markdown'
@@ -479,10 +479,10 @@ export const Entry: Comp<EntryProps> = ({ className, id, popup, reduced }) => {
 
   const style = entry.img
     ? {
-        ['--data-img']: `url(${entry.img})`,
-        ['--data-pos']: entry.img_pos || '50%',
-        ['--data-opa']: entry.img_opa || COLORS.img_opa,
-      }
+      ['--data-img']: `url(${entry.img})`,
+      ['--data-pos']: entry.img_pos || '50%',
+      ['--data-opa']: entry.img_opa || COLORS.img_opa,
+    }
     : {}
   const def_keys = DEF_KEYS.filter(k => entry[k])
   return (
@@ -588,7 +588,7 @@ export const Entry: Comp<EntryProps> = ({ className, id, popup, reduced }) => {
                 className="phrases"
                 entries={entry.phrases}
                 type="md"
-                // type={open ? 'md-open' : 'md'} // open phrases
+              // type={open ? 'md-open' : 'md'} // open phrases
               />
             </Definition>
           </Group>

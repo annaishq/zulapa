@@ -1,7 +1,7 @@
 import classnames from 'classnames'
 import * as React from 'react'
 import { COLORS, Comp, styled, useOvermind } from '../app'
-import { getEntry } from '../helpers/getEntry'
+import { getEntry } from '../../../src/helpers/getEntry'
 import { Caption } from './Caption'
 import { Phrase } from './Phrase'
 
@@ -75,8 +75,8 @@ export const Link: Comp<LinkProps> = ({ className, id, type, children }) => {
   const anchorClass = customLink
     ? 'custom'
     : writ && entryType !== 'card'
-    ? 'writ'
-    : ''
+      ? 'writ'
+      : ''
   return (
     <Wrapper
       className={classnames('Link', className, {

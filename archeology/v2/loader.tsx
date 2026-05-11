@@ -1,4 +1,4 @@
-import { conlang } from './settings'
+import { conlang } from '../../src/settings'
 import './style.css'
 
 if (BUILD_ENV.APP_ENV === 'development') {

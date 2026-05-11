@@ -4,7 +4,7 @@ import { FunctionComponent as Comp } from 'react'
 import styled from 'styled-components'
 import * as actions from './actions'
 import { FloatArg } from './actions'
-import { CompiledEntriesByType } from './conlib'
+import { CompiledEntriesByType } from '../../src/conlib'
 export { styled, Comp }
 
 export type Colors = {

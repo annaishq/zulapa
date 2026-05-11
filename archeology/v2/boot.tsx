@@ -5,8 +5,8 @@ import * as ReactDOM from 'react-dom'
 import * as actions from './actions'
 import { ZulapaConfig } from './app'
 import { App } from './components'
-import { CompiledEntriesByType, TYPES } from './conlib'
-import * as xdb from './db.json'
+import { CompiledEntriesByType, TYPES } from '../../src/conlib'
+import * as xdb from '../../src/db.json'
 import './style.css'
 
 const db = xdb as CompiledEntriesByType

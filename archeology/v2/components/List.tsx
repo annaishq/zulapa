@@ -1,7 +1,7 @@
 import classnames from 'classnames'
 import * as React from 'react'
 import { COLORS, Comp, styled, useOvermind } from '../app'
-import { getEntry } from '../helpers/getEntry'
+import { getEntry } from '../../../src/helpers/getEntry'
 import { Link, LinkProps } from './Link'
 import { Markdown } from './Markdown'
 
