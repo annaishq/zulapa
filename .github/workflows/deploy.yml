@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -52,7 +52,7 @@ jobs:
           fi
           aws s3 sync "s3://${S3_AUDIO_BUCKET}/audio/" ./audio/
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: website
 
