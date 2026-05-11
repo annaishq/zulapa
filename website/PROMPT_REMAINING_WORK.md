@@ -19,7 +19,7 @@ Finish **operational wiring** for the tiered IPA audio pipeline (GitHub Pages �
 
 ## 2. Client config (production URLs)
 
-In **`Zulapa.html`** (or a small `config.js` you inject in CI), fill **`window.__ZULAPA_AUDIO__`**:
+In **`index.html`** (or a small `config.js` you inject in CI), fill **`window.__ZULAPA_AUDIO__`**:
 
 - **`ghAudioBase`** — usually leave default empty so same-origin `/audio/` is used; or set explicitly if the app is not at repo root.
 - **`s3AudioBase`** — public object URL prefix for `audio/{key}.mp3` (e.g. `https://BUCKET.s3.REGION.amazonaws.com/audio/` — trailing slash semantics must match what `audio-resolve.js` expects: it joins `base + key + ".mp3"`).
