@@ -1,0 +1,10 @@
+@font-face {
+  font-family: 'Telugu';
+  src: url(/b03e6fcfe877f29e0f7002b3442b8300.ttf);
+}
+body {
+  margin-bottom: 140px;
+  background:#000;
+  font-family:  'Rubik', 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
+    'Lucida Sans', Arial, sans-serif;
+}
