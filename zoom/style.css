@@ -7,9 +7,9 @@
   --bg:        #1b011a;          /* body_bg */
   --bg-panel:  #1c011c;          /* sidebar / cards */
   --bg-card:   #1c001c;          /* wrapper_bg */
-  --border:    #312e44;           /* UI hairlines — same hue as archeology desc_h6 base */
+  --border:    #312e44ad;        /* UI hairlines — subtle alpha vs solid --border-section splits */
   --border-hi: #8a3a8c;          /* hover hairline */
-  --border-section: #312e44;     /* column / region splits — value matches --border, token kept for layout intent */
+  --border-section: #312e44;     /* column / region splits — solid */
 
   /* Text (archeology def_text, def_type, trad_color) */
   --ink:       #f0eef0;
@@ -62,7 +62,14 @@
 html[data-density="compact"] { --gap: 16px; }
 html[data-density="airy"]    { --gap: 32px; }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
 
 html, body {
   margin: 0;
@@ -73,6 +80,16 @@ html, body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  -ms-overflow-style: none;
+}
+
+html {
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
@@ -362,6 +379,15 @@ kbd {
   margin: 2rem auto;
   border-collapse: collapse;
   color: inherit;
+}
+.desc .art__table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 2rem auto;
+  max-width: 100%;
+}
+.desc .art__table-wrap .art__table {
+  margin: 0;
 }
 .desc table:first-child,
 .desc .art__p:first-child { margin-top: 0; }
@@ -710,7 +736,7 @@ kbd {
 
 .k-entry {
   padding: 16px 18px;
-  border: 1px solid var(--border);
+  border: none;
   border-radius: 12px;
   background: var(--bg-card);
   display: flex; flex-direction: column; gap: 14px;
@@ -850,7 +876,7 @@ kbd {
    ============================================================ */
 
 .k-graph {
-  border: 1px solid var(--border-section);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px 4px 4px;
   background: rgba(255,255,255,0.015);
@@ -883,6 +909,59 @@ kbd {
 .k-graph__legend i {
   width: 6px; height: 6px; border-radius: 50%;
   display: inline-block;
+}
+
+/* Morph ribbon — gloss grid; pill width from label; outline color = gloss tier POS (teal/orange/…) */
+.k-morph-rail { padding-top: 28px; }
+.k-morph-rail.k-graph { padding-bottom: 10px; }
+.k-morph-rail__cols {
+  display: grid;
+  gap: 4px 0;
+  padding: 6px 8px 8px;
+  align-items: start;
+}
+.k-morph-rail__col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.k-morph-rail__pillslot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  min-height: 38px;
+}
+.k-morph-rail__bubble-svg {
+  flex: 0 1 auto;
+  width: auto;
+  height: 42px;
+  max-width: 100%;
+  display: block;
+}
+.k-morph-rail__bubble-txt {
+  fill: var(--ink-soft);
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+.k-morph-rail .k-morph-rail__hit:focus { outline: none; }
+.k-morph-rail .k-morph-rail__hit:focus rect {
+  stroke: var(--accent);
+  stroke-width: 1.75;
+}
+.k-morph-rail__gtxt {
+  font-size: 12.5px;
+  line-height: 1.35;
+  text-align: center;
+  width: 100%;
+  word-break: break-word;
+}
+.k-morph-rail__gtxt .k-wordlink {
+  font-size: inherit;
+  padding: 0;
 }
 
 /* ============================================================

@@ -6,13 +6,16 @@
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
 /* ----- WordLink: inline word in body copy ----- */
-function WordLink({ slug, children, onOpen }) {
+function WordLink({ slug, children, onOpen, tokenId }) {
   const exists = !!window.LEX[slug];
   return (
     <button
       type="button"
       className={"k-wordlink" + (exists ? "" : " is-stub")}
-      onClick={(e) => { e.stopPropagation(); onOpen(slug, e.currentTarget); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onOpen(slug, tokenId && tokenId.startsWith("alt-") ? { tokenId } : undefined);
+      }}
     >
       {children || slug}
     </button>
@@ -47,7 +50,7 @@ function renderInline(text, ctx) {
       } else if (target.startsWith("alt-")) {
         const alt = window.BY_ALT_ID[target];
         const slug = alt ? ((window.BY_WORD_ID[alt.alt] || window.BY_WORD_ID[alt.orig] || {}).name || alt.name) : target;
-        parts.push(<WordLink key={i++} slug={slug} onOpen={ctx.onOpenWord}>{label}</WordLink>);
+        parts.push(<WordLink key={i++} slug={slug} tokenId={target} onOpen={ctx.onOpenWord}>{label}</WordLink>);
       } else if (target.startsWith("card-")) {
         const slug = target.slice(5);
         parts.push(<ArticleLink key={i++} slug={slug} onOpen={ctx.onOpenArticle}>{label}</ArticleLink>);
@@ -66,6 +69,87 @@ function renderInline(text, ctx) {
   }
   if (last < text.length) parts.push(text.slice(last));
   return parts;
+}
+
+/* ----- GFM-ish pipe tables (MarkdownBody merges lines into <p>; tables need own block) ----- */
+function tableRowCells(line) {
+  let s = String(line || "").replace(/\s+$/, "").trim();
+  if (!s.includes("|")) return null;
+  if (s.startsWith("|")) s = s.slice(1);
+  if (/\|\s*$/.test(s)) s = s.replace(/\|\s*$/, "");
+  const cells = s.split("|").map((c) => String(c || "").trim());
+  if (!cells.length) return null;
+  return cells;
+}
+
+function normDelim(cell) {
+  return String(cell || "").trim().replace(/\s+/g, "");
+}
+
+/** Delimiter cells use only :--- / --- alignment hyphens */
+function delimiterRowOK(parts) {
+  if (!parts || parts.length < 2) return false;
+  return parts.every((c) => /^:?-{3,}:?$/.test(normDelim(c)));
+}
+
+function delimAlign(cell) {
+  const n = normDelim(cell);
+  if (/^:-{3,}:$/.test(n)) return "center";
+  if (/^-{3,}:$/.test(n)) return "right";
+  return "left";
+}
+
+/** If lines[start] is pipe header & lines[start+1] is delimiter row, consume through body. */
+function tryConsumeTable(lines, start) {
+  if (start + 2 > lines.length) return null;
+  const header = tableRowCells(lines[start]);
+  const delimCells = tableRowCells(lines[start + 1]);
+  if (!header || header.length < 2 || !delimCells ||
+      delimCells.length !== header.length || !delimiterRowOK(delimCells)) return null;
+
+  const nCol = header.length;
+  const aligns = delimCells.map(delimAlign);
+  const rows = [];
+  let j = start + 2;
+  while (j < lines.length) {
+    const raw = lines[j];
+    const ttrim = raw.replace(/\s+$/, "").trim();
+    if (!ttrim) break;
+    if (!ttrim.includes("|")) break;
+    const cells = tableRowCells(ttrim);
+    if (!cells) break;
+    const padded = cells.slice(0, nCol);
+    while (padded.length < nCol) padded.push("");
+    padded.length = nCol;
+    rows.push(padded);
+    j++;
+  }
+  return { header, aligns, rows, nextLine: j };
+}
+
+function MdTable({ header, aligns, rows, ctx }) {
+  return (
+    <div className="art__table-wrap">
+      <table className="art__table">
+        <thead>
+          <tr>
+            {header.map((cell, k) => (
+              <th key={k} style={{ textAlign: aligns[k] || "left" }}>{renderInline(cell, ctx)}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, ri) => (
+            <tr key={ri}>
+              {row.map((cell, ci) => (
+                <td key={ci} style={{ textAlign: aligns[ci] || "left" }}>{renderInline(cell, ctx)}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 function PhraseChip({ pid, ctx }) {
@@ -95,13 +179,34 @@ function glossLineNodes(line, ctx) {
   ));
 }
 
+/** Phrases/caption blocks whose gloss row lists this exact token id (word-X or alt-X). */
+function phraseIdsContainingToken(tokenId) {
+  if (!tokenId) return [];
+  const seen = new Set();
+  const out = [];
+  const visit = (coll) => {
+    if (!coll) return;
+    for (const pid in coll) {
+      if (seen.has(pid)) continue;
+      const words = coll[pid] && coll[pid].words;
+      if (!Array.isArray(words) || !words.includes(tokenId)) continue;
+      seen.add(pid);
+      out.push(pid);
+    }
+  };
+  visit(window.PHRASES);
+  visit(window.CAPTIONS);
+  return out;
+}
+
 /* ----- Glossed phrase block (interlinear) ----- */
 function PhraseBlock({ pid, ctx, caption }) {
   const p = window.PHRASES[pid] || window.CAPTIONS[pid];
   if (!p) return null;
   const rows = (p.words || []).map((wid, i) => {
     const t = window.RESOLVE(wid);
-    return t || { slug:wid, head:wid, ipa:"", script:"", gloss:[wid], glossLine:"", pos:"" };
+    const base = t || { slug:wid, head:wid, ipa:"", script:"", gloss:[wid], glossLine:"", pos:"" };
+    return Object.assign({}, base, { wid });
   }).filter(r => r.head && r.head !== "." && r.head !== "," && r.head !== "!");
 
   return (
@@ -116,7 +221,10 @@ function PhraseBlock({ pid, ctx, caption }) {
             : (r.gloss || []).join(".");
           return (
           <div key={i} className={"k-gloss__col" + (cla ? " " + cla : "")}>
-            <button className="k-gloss__head" onClick={() => ctx.onOpenWord(r.slug)}>
+            <button className="k-gloss__head" onClick={() => ctx.onOpenWord(
+              r.slug,
+              r.wid && String(r.wid).startsWith("alt-") ? { tokenId: r.wid } : undefined,
+            )}>
               {r.head}
             </button>
             <div className="k-gloss__ipa">{r.ipa}</div>
@@ -177,6 +285,14 @@ function MarkdownBody({ src, ctx }) {
       }
       continue;
     }
+    const tbl = tryConsumeTable(lines, i);
+    if (tbl) {
+      flushPara();
+      flushListBlock();
+      blocks.push({ kind: "table", header: tbl.header, aligns: tbl.aligns, rows: tbl.rows });
+      i = tbl.nextLine - 1;
+      continue;
+    }
     flushListBlock();
     buf.push(line.trim());
   }
@@ -201,6 +317,11 @@ function MarkdownBody({ src, ctx }) {
         }
         if (b.kind === "phrase") {
           return <PhraseBlock key={i} pid={b.pid} ctx={ctx} />;
+        }
+        if (b.kind === "table") {
+          return (
+            <MdTable key={i} header={b.header} aligns={b.aligns} rows={b.rows} ctx={ctx} />
+          );
         }
         return null;
       })}
@@ -263,8 +384,69 @@ function MiniGraph({ slug, onOpen }) {
   );
 }
 
+/** Pill stroke — same palette as interlinear gloss tier by token `cla` */
+function morphPillStroke(pos) {
+  const p = String(pos || "").toLowerCase();
+  if (p === "noun") return "var(--teal)";
+  if (p === "verb") return "var(--orange)";
+  if (p === "adj") return "var(--adj)";
+  if (p === "adv") return "var(--magenta)";
+  return "var(--cyan)";
+}
+
+/* ----- Morph ribbon: grid-aligned gloss; pill width tracks label; stroke matches gloss class ----- */
+function MorphRibbon({ ribbon, onOpen, ctx }) {
+  const cells = ribbon.cells || [];
+  if (!cells.length) return null;
+  const tpl = `repeat(${cells.length}, minmax(0, 1fr))`;
+  const vbH = 34;
+  const pillH = 23;
+  const padX = 7;
+
+  return (
+    <div className="k-graph k-morph-rail">
+      <div className="k-graph__label">composition</div>
+      <div className="k-morph-rail__cols" style={{ gridTemplateColumns: tpl }}>
+        {cells.map((c, i) => {
+          const claCell = /^(noun|verb|adj|adv)$/.test(String(c.pos || "")) ? c.pos : "";
+          const colCls = `k-morph-rail__col k-gloss__col${claCell ? ` ${claCell}` : ""}`;
+          const lbl = String(c.label);
+          const vbW = Math.min(132, Math.max(34, lbl.length * 12 + padX * 2 + 18));
+          const stroke = morphPillStroke(c.pos);
+          const fsu = Math.min(21, Math.max(14.5, vbW * 0.31));
+          const pillY = (vbH - pillH) / 2;
+
+          return (
+            <div key={`col-${i}-${c.label}`} className={colCls}>
+              <div className="k-morph-rail__pillslot">
+                <svg viewBox={`0 0 ${vbW} ${vbH}`} preserveAspectRatio="xMidYMid meet" className="k-morph-rail__bubble-svg">
+                  <g className="k-graph__node k-morph-rail__hit" role="button" tabIndex={0}
+                    aria-label={`Open lemma ${c.openSlug}`}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => onOpen(c.openSlug)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(c.openSlug); }
+                    }}>
+                    <rect x={padX} y={pillY} width={vbW - padX * 2} height={pillH} rx={pillH / 2}
+                      fill="var(--bg-panel)" stroke={stroke} strokeWidth={1.2}/>
+                    <text x={vbW / 2} y={vbH / 2} textAnchor="middle" dominantBaseline="central"
+                      className="k-morph-rail__bubble-txt" fontSize={fsu}>{c.label}</text>
+                  </g>
+                </svg>
+              </div>
+              <div className="k-gloss__line k-gloss__line--md k-morph-rail__gtxt">
+                {glossLineNodes(c.glossLine, ctx)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* ----- Word entry — full card ----- */
-function WordEntry({ slug, ctx }) {
+function WordEntry({ slug, ctx, phraseTokenId }) {
   const lex = window.LEX[slug];
   if (!lex) {
     return (
@@ -275,18 +457,40 @@ function WordEntry({ slug, ctx }) {
     );
   }
   const showGraph = document.documentElement.dataset.graph !== "off";
+  const altPeek = phraseTokenId && window.BY_ALT_ID ? window.BY_ALT_ID[phraseTokenId] : null;
+  const ribbon = phraseTokenId && window.altMorphRibbon ? window.altMorphRibbon(phraseTokenId) : null;
+  const overlaySurface = ribbon ? ribbon : (
+    altPeek
+      ? {
+        surfaceHead: altPeek.name,
+        surfaceIpa: altPeek.phon || "",
+        surfaceScript: altPeek.writ || "",
+        leafPos: String(altPeek.cla || "").toLowerCase(),
+      }
+      : null
+  );
+  const showMorphRibbon = !!(ribbon && ribbon.cells && ribbon.cells.length);
+
+  const usedInPhraseIds = phraseTokenId && String(phraseTokenId).startsWith("alt-")
+    ? phraseIdsContainingToken(phraseTokenId)
+    : (lex.phrases || []);
+
+  const showLexGlosses = !phraseTokenId || !String(phraseTokenId).startsWith("alt-");
 
   return (
     <article className="k-entry k-entry--card">
       <header className="k-entry__head">
-        <h3 className="k-entry__word">{lex.head}</h3>
-        <span className="k-entry__pos">{lex.pos}</span>
+        <h3 className="k-entry__word">{overlaySurface ? overlaySurface.surfaceHead : lex.head}</h3>
+        <span className="k-entry__pos">{overlaySurface ? (overlaySurface.leafPos || lex.pos) : lex.pos}</span>
       </header>
       <div className="k-entry__phono">
-        <span className="k-entry__ipa">{lex.ipa}</span>
-        <span className="k-entry__script">{lex.script}</span>
+        <span className="k-entry__ipa">{overlaySurface ? overlaySurface.surfaceIpa : lex.ipa}</span>
+        <span className="k-entry__script">{overlaySurface ? overlaySurface.surfaceScript : lex.script}</span>
       </div>
-      {lex.glosses.length ? (
+      {showMorphRibbon ? (
+        <MorphRibbon ribbon={ribbon} onOpen={ctx.onOpenWord} ctx={ctx} />
+      ) : null}
+      {showLexGlosses && lex.glosses.length ? (
         <div className="k-entry__glosses">
           {lex.glosses.map((g, i) => (
             <span key={i} className="k-entry__gloss">
@@ -340,16 +544,16 @@ function WordEntry({ slug, ctx }) {
         </section>
       ) : null}
 
-      {showGraph ? <MiniGraph slug={slug} onOpen={ctx.onOpenWord} /> : null}
+      {showGraph && !showMorphRibbon ? <MiniGraph slug={slug} onOpen={ctx.onOpenWord} /> : null}
 
-      {lex.phrases && lex.phrases.length ? (
+      {usedInPhraseIds.length ? (
         <section className="k-entry__sec">
           <h4>used in</h4>
-          {lex.phrases.slice(0, 4).map(pid => (
+          {usedInPhraseIds.slice(0, 4).map(pid => (
             <PhraseBlock key={pid} pid={pid} ctx={ctx} />
           ))}
-          {lex.phrases.length > 4 ? (
-            <div className="k-entry__more">+ {lex.phrases.length - 4} more</div>
+          {usedInPhraseIds.length > 4 ? (
+            <div className="k-entry__more">+ {usedInPhraseIds.length - 4} more</div>
           ) : null}
         </section>
       ) : null}
@@ -440,6 +644,6 @@ function WordEntryTable({ slug, ctx }) {
 
 Object.assign(window, {
   WordLink, ArticleLink, renderInline, MarkdownBody,
-  PhraseBlock, PhraseChip, MiniGraph, isTag,
+  PhraseBlock, PhraseChip, MiniGraph, MorphRibbon, isTag,
   WordEntry, WordEntryList, WordEntryTable,
 });

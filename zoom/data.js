@@ -165,6 +165,56 @@ window.dataReady = (async function loadData() {
   const songs = Object.keys(ARTICLES).filter(n => n.startsWith("zz - song") || n.startsWith("zz - SONG") || n.startsWith("zz - MEDEA"));
   if (songs.length) CATEGORIES.push({ id:"songs", label:"songs", articles: songs });
 
+  /* ---- composed alt → morpheme ribbon (reference panel) ---- */
+  function altMorphRibbon(leafAltId) {
+    const leaf = byAltId[leafAltId];
+    if (!leaf || leaf.type !== "alt") return null;
+    const idMatch = /^alt-(.+)$/.exec(leafAltId);
+    if (!idMatch) return null;
+    const labels = idMatch[1].split("-");
+    const rawGlo = String(leaf.glo || "").trim().replace(/\n/g, ".");
+    const glossFragments = rawGlo.split(/\.+/).filter(Boolean);
+    if (labels.length < 2 || labels.length !== glossFragments.length) return null;
+
+    const chain = [];
+    let cur = leafAltId;
+    while (cur) {
+      chain.unshift(cur);
+      const step = byAltId[cur];
+      cur = step && step.prev ? step.prev : null;
+    }
+    if (chain.length !== labels.length) return null;
+
+    function slugFrom(nodeId) {
+      const w = byWordId[nodeId];
+      if (w) return w.name;
+      const alt = byAltId[nodeId];
+      if (!alt) return "";
+      const o = alt.orig ? byWordId[alt.orig] : null;
+      if (o) return o.name;
+      const t = alt.alt ? byWordId[alt.alt] : null;
+      return t ? t.name : "";
+    }
+
+    const cells = labels.map((label, i) => {
+      const nodeId = chain[i];
+      const openSlug = slugFrom(nodeId) || label;
+      const wNode = byWordId[nodeId];
+      const altNode = byAltId[nodeId];
+      const claRaw = (wNode && wNode.cla) ? wNode.cla : (altNode && altNode.cla);
+      const pos = String(claRaw || "").toLowerCase();
+      return { label, openSlug, glossLine: glossFragments[i] || "", pos };
+    });
+
+    return {
+      surfaceHead: leaf.name,
+      surfaceIpa: leaf.phon || "",
+      surfaceScript: leaf.writ || "",
+      leafPos: String(leaf.cla || "").toLowerCase(),
+      cells,
+    };
+  }
+
   /* ---- expose ---- */
   window.LEX        = LEX;
   window.ARTICLES   = ARTICLES;
@@ -174,6 +224,7 @@ window.dataReady = (async function loadData() {
   window.RESOLVE    = resolveToken;
   window.BY_WORD_ID = byWordId;
   window.BY_ALT_ID  = byAltId;
+  window.altMorphRibbon = altMorphRibbon;
 
   return true;
 })();
