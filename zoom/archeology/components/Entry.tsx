@@ -246,7 +246,7 @@ const Definition = styled.div`
   flex-direction: row;
   padding: 5px;
   &.desc {
-    padding: 0 20px;
+    padding: 0;
     line-height: 1.6rem;
     color: ${COLORS.desc_color};
     display: block;

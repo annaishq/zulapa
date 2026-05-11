@@ -3,27 +3,54 @@
    ------------------------------------------------------------------ */
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
+function trailEntryPhraseId(entry) {
+  if (entry && typeof entry === "object" && entry.phraseId)
+    return String(entry.phraseId);
+  return null;
+}
+
 function trailEntrySlug(entry) {
+  if (trailEntryPhraseId(entry)) return "";
   if (typeof entry === "string") return entry || "";
   return entry && typeof entry.slug === "string" ? entry.slug : "";
 }
 
 function trailEntryTokenId(entry) {
+  if (trailEntryPhraseId(entry)) return null;
   if (!entry || typeof entry === "string") return null;
   return entry.tokenId || null;
 }
 
 function trailEntrySame(a, b) {
+  const pa = trailEntryPhraseId(a), pb = trailEntryPhraseId(b);
+  if (pa || pb) return Boolean(pa && pb && pa === pb);
   return trailEntrySlug(a) === trailEntrySlug(b) && trailEntryTokenId(a) === trailEntryTokenId(b);
 }
 
 function trailPeek(stack) {
   const tail = stack[stack.length - 1];
   if (!tail) return null;
-  return { slug: trailEntrySlug(tail), tokenId: trailEntryTokenId(tail) };
+  const pid = trailEntryPhraseId(tail);
+  if (pid) return { slug: "", tokenId: null, phraseId: pid };
+  return { slug: trailEntrySlug(tail), tokenId: trailEntryTokenId(tail), phraseId: null };
 }
 
-function crumbLabel(slug, tokenId) {
+function slotKey(entry, i) {
+  const ph = trailEntryPhraseId(entry);
+  if (ph) return `trail-ph-${ph}-${i}`;
+  const slug = trailEntrySlug(entry);
+  const tok = trailEntryTokenId(entry) || "";
+  return `trail-w-${slug}-${tok}-${i}`;
+}
+
+function crumbLabelFromEntry(entry) {
+  const pid = trailEntryPhraseId(entry);
+  if (pid) {
+    const p = window.PHRASES[pid] || window.CAPTIONS[pid];
+    return p ? (p.phrase || p.trad || pid) : pid;
+  }
+  const slug = trailEntrySlug(entry);
+  const tokenId = trailEntryTokenId(entry);
   if (tokenId && window.BY_ALT_ID[tokenId]) {
     const nm = window.BY_ALT_ID[tokenId].name;
     if (nm) return nm;
@@ -32,7 +59,10 @@ function crumbLabel(slug, tokenId) {
   return lex ? lex.head : slug;
 }
 
-function crumbIpa(slug, tokenId) {
+function crumbIpaFromEntry(entry) {
+  if (trailEntryPhraseId(entry)) return "";
+  const slug = trailEntrySlug(entry);
+  const tokenId = trailEntryTokenId(entry);
   if (tokenId && window.BY_ALT_ID[tokenId]) {
     const ph = window.BY_ALT_ID[tokenId].phon;
     if (ph) return ph;
@@ -41,29 +71,50 @@ function crumbIpa(slug, tokenId) {
   return lex ? lex.ipa : "";
 }
 
+function crumbGlossFromEntry(entry) {
+  const pid = trailEntryPhraseId(entry);
+  if (pid) {
+    const p = window.PHRASES[pid] || window.CAPTIONS[pid];
+    return p && p.trad ? p.trad : "";
+  }
+  const slug = trailEntrySlug(entry);
+  const lex = slug ? window.LEX[slug] : null;
+  return lex ? window.lexSenseBrief(lex) : "";
+}
+
 function useTrail(initial = []) {
   const [stack, setStack] = useState(initial);
-  const push = useCallback((slugOrPair) =>
+  const push = useCallback((item) =>
     setStack((p) => {
-      let nextSlug;
-      let nextTok = null;
-      if (!slugOrPair) return p;
-      if (typeof slugOrPair === "string") {
-        nextSlug = slugOrPair;
+      if (item == null) return p;
+      let normalized;
+      if (typeof item === "object" && item.phraseId) {
+        normalized = { phraseId: String(item.phraseId) };
+      } else if (typeof item === "string") {
+        normalized = item;
+      } else if (typeof item === "object" && item.slug) {
+        normalized = item.tokenId ? { slug: item.slug, tokenId: item.tokenId } : item.slug;
       } else {
-        nextSlug = slugOrPair.slug;
-        nextTok = slugOrPair.tokenId || null;
+        return p;
       }
-      if (!nextSlug) return p;
-      const normalized = nextTok ? { slug: nextSlug, tokenId: nextTok } : nextSlug;
       if (p.length && trailEntrySame(p[p.length - 1], normalized)) return p;
       return [...p, normalized];
     }), []);
+  const pushFromPhrase = useCallback((slug, tokenId, phraseId) => {
+    if (!slug || !phraseId) return;
+    setStack((p) => {
+      const ix = p.findIndex((e) => trailEntryPhraseId(e) === phraseId);
+      const base = ix >= 0 ? p.slice(0, ix + 1) : p;
+      const normalized = tokenId ? { slug, tokenId } : slug;
+      if (base.length && trailEntrySame(base[base.length - 1], normalized)) return p;
+      return [...base, normalized];
+    });
+  }, []);
   const pop   = useCallback(() => setStack(p => p.slice(0, -1)), []);
   const goTo  = useCallback((i)  => setStack(p => p.slice(0, i+1)), []);
   const clear = useCallback(()    => setStack([]), []);
   // Stable object identity — re-use across renders so consumers' useMemo/useCallback don't churn.
-  return useMemo(() => ({ stack, push, pop, goTo, clear }), [stack, push, pop, goTo, clear]);
+  return useMemo(() => ({ stack, push, pushFromPhrase, pop, goTo, clear }), [stack, push, pushFromPhrase, pop, goTo, clear]);
 }
 
 /* ---- Article view ---- */
@@ -153,33 +204,37 @@ function Sidebar({ current, ctx, onOpenSearch }) {
 
 /* ---- Reference panel ---- */
 function ReferencePanel({ trail, ctx, entryStyle, trailMode }) {
-  const peek = trailPeek(trail.stack);
-  const currentSlug = peek && peek.slug;
-  const phraseTokenId = peek && peek.tokenId;
-  const empty = !currentSlug;
+  const stack = trail.stack;
+  const peek = trailPeek(stack);
+  const empty = !peek || (!peek.phraseId && !peek.slug);
 
   return (
     <section className={"ref" + (empty ? " ref--empty" : "")}>
       <header className="ref__head">
         <div className="ref__head-left">
           {!empty && (trailMode === "all" || trailMode === "back") ? (
-            <button className="ref__back" onClick={trail.pop} disabled={trail.stack.length < 2} title="Back">
+            <button
+              className="ref__back"
+              type="button"
+              onClick={() => (trail.stack.length <= 1 ? trail.clear() : trail.pop())}
+              title={trail.stack.length <= 1 ? "Close reference" : "Back"}
+            >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 6l-6 6 6 6"/></svg>
             </button>
           ) : null}
           {!empty && (trailMode === "all" || trailMode === "breadcrumb") ? (
             <ol className="ref__crumbs">
               {trail.stack.map((entry, i) => {
-                const slug = trailEntrySlug(entry);
-                const tok = trailEntryTokenId(entry);
                 const last = i === trail.stack.length - 1;
+                const pk = trailEntryPhraseId(entry) || trailEntrySlug(entry) || "";
+                const tok = trailEntryTokenId(entry) || "";
                 return (
-                  <li key={`${i}-${slug}-${tok || ""}`}>
+                  <li key={`crumb-${i}-${pk}-${tok}`}>
                     <button
                       className={"ref__crumb" + (last ? " is-last" : "")}
                       onClick={() => trail.goTo(i)}
                     >
-                      {crumbLabel(slug, tok)}
+                      {crumbLabelFromEntry(entry)}
                     </button>
                     {!last ? <span className="ref__crumbsep">›</span> : null}
                   </li>
@@ -197,35 +252,47 @@ function ReferencePanel({ trail, ctx, entryStyle, trailMode }) {
       {empty ? (
         <div className="ref__empty">
           <div className="ref__empty-glyph">అవి</div>
-          <p>tap any <span className="ref__empty-pink">pink word</span> in the article to open it here.</p>
-          <p className="ref__empty-sub">words you visit stack up. use the crumbs above to backtrack.</p>
+          <p>tap a <span className="ref__empty-pink">pink word</span> or <span className="ref__empty-pink">phrase</span> in the article to open it here.</p>
+          <p className="ref__empty-sub">items you open stack up. use the crumbs above to backtrack.</p>
           <div className="ref__empty-hint">
             <kbd>⌘K</kbd> to search · <kbd>esc</kbd> to step back
           </div>
         </div>
       ) : (
         <div className="ref__stack">
-          {trail.stack.slice(0, -1).map((entry, i) => {
-            const slug = trailEntrySlug(entry);
-            const tok = trailEntryTokenId(entry);
-            const lex = window.LEX[slug];
+          {stack.map((entry, stackIdx) => {
+            const last = stackIdx === stack.length - 1;
+            const ph = trailEntryPhraseId(entry);
+            if (ph) {
+              return (
+                <div key={slotKey(entry, stackIdx)} className="ref__slot ref__slot--phrase">
+                  <window.PhraseBlock pid={ph} ctx={ctx} />
+                </div>
+              );
+            }
+            if (last) {
+              const slug = trailEntrySlug(entry);
+              const phraseTokenId = trailEntryTokenId(entry);
+              return (
+                <div key={slotKey(entry, stackIdx)} className="ref__slot ref__slot--current">
+                  {entryStyle === "list"
+                    ? <window.WordEntryList slug={slug} ctx={ctx} />
+                    : entryStyle === "table"
+                    ? <window.WordEntryTable slug={slug} ctx={ctx} />
+                    : <window.WordEntry slug={slug} phraseTokenId={phraseTokenId} ctx={ctx} />
+                  }
+                </div>
+              );
+            }
             return (
-              <button key={`${i}-${slug}-${tok || ""}`} className="ref__collapsed"
-                      onClick={() => trail.goTo(i)}>
-                <span className="ref__collapsed-word">{crumbLabel(slug, tok)}</span>
-                <span className="ref__collapsed-ipa">{crumbIpa(slug, tok)}</span>
-                <span className="ref__collapsed-gloss">{lex ? lex.glosses.join(", ") : ""}</span>
+              <button key={slotKey(entry, stackIdx)} type="button" className="ref__collapsed"
+                      onClick={() => trail.goTo(stackIdx)}>
+                <span className="ref__collapsed-word">{crumbLabelFromEntry(entry)}</span>
+                <span className="ref__collapsed-ipa">{crumbIpaFromEntry(entry)}</span>
+                <span className="ref__collapsed-gloss">{crumbGlossFromEntry(entry)}</span>
               </button>
             );
           })}
-          <div className="ref__current">
-            {entryStyle === "list"
-              ? <window.WordEntryList slug={currentSlug} ctx={ctx} />
-              : entryStyle === "table"
-              ? <window.WordEntryTable slug={currentSlug} ctx={ctx} />
-              : <window.WordEntry slug={currentSlug} phraseTokenId={phraseTokenId} ctx={ctx} />
-            }
-          </div>
         </div>
       )}
     </section>
@@ -247,7 +314,9 @@ function SearchOverlay({ open, onClose, ctx }) {
     const words = Object.entries(window.LEX)
       .filter(([slug, lex]) =>
         lex.head.toLowerCase().includes(needle) ||
-        (lex.glosses || []).some(g => g.toLowerCase().includes(needle)))
+        (lex.glosses || []).some(g => g.toLowerCase().includes(needle)) ||
+        (lex.senses || []).some(({ gloss, pos }) =>
+          (gloss || "").toLowerCase().includes(needle) || String(pos || "").toLowerCase().includes(needle)))
       .sort(([,a],[,b]) => {
         const an = a.head.toLowerCase() === needle ? 0 : a.head.toLowerCase().startsWith(needle) ? 1 : 2;
         const bn = b.head.toLowerCase() === needle ? 0 : b.head.toLowerCase().startsWith(needle) ? 1 : 2;
@@ -311,7 +380,7 @@ function SearchOverlay({ open, onClose, ctx }) {
                       <span className="srch__row-word">{lex.head}</span>
                       <span className="srch__row-ipa">{lex.ipa}</span>
                       <span className="srch__row-script">{lex.script}</span>
-                      <span className="srch__row-gloss">{lex.glosses.join(", ")}</span>
+                      <span className="srch__row-gloss">{window.lexSenseBrief(lex)}</span>
                     </button>
                   );
                 })}
@@ -402,7 +471,12 @@ function App() {
 
   const openWord = useCallback((slug, opts) => {
     if (!slug) return;
-    trail.push(opts && opts.tokenId ? { slug, tokenId: opts.tokenId } : slug);
+    const fromPhraseId = opts && opts.fromPhraseId;
+    if (fromPhraseId) {
+      trail.pushFromPhrase(slug, opts && opts.tokenId ? opts.tokenId : null, fromPhraseId);
+    } else {
+      trail.push(opts && opts.tokenId ? { slug, tokenId: opts.tokenId } : slug);
+    }
     setMobileSheetOpen(true);
   }, [trail]);
 
@@ -414,7 +488,18 @@ function App() {
     document.querySelector(".main")?.scrollTo({ top: 0, behavior:"smooth" });
   }, []);
 
-  const ctx = useMemo(() => ({ onOpenWord: openWord, onOpenArticle: openArticle }), [openWord, openArticle]);
+  const openPhrase = useCallback((phraseId) => {
+    if (!phraseId) return;
+    const id = String(phraseId).startsWith("phrase-") ? String(phraseId) : "phrase-" + phraseId;
+    if (!window.PHRASES[id] && !window.CAPTIONS[id]) return;
+    trail.push({ phraseId: id });
+    setMobileSheetOpen(true);
+  }, [trail]);
+
+  const ctx = useMemo(
+    () => ({ onOpenWord: openWord, onOpenArticle: openArticle, onOpenPhrase: openPhrase }),
+    [openWord, openArticle, openPhrase],
+  );
 
   // expose for cross-component link clicks (legacy hook)
   window.__keo = ctx;

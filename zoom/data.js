@@ -52,8 +52,29 @@ window.dataReady = (async function loadData() {
     if (w.noun) out.push(w.noun);
     if (w.verb) out.push(w.verb);
     if (w.adj)  out.push(w.adj);
+    if (w.adv)  out.push(w.adv);
     if (!out.length && w.glo) out.push(stripMarkdownFallback ? stripMd(w.glo) : String(w.glo).trim());
     return out;
+  }
+
+  /** One row per lexical field: { gloss, pos } for entry card (noun → teal, verb → orange, …). */
+  function sensesFromWord(w) {
+    const rows = [];
+    function add(field) {
+      const v = w[field];
+      if (!v) return;
+      const gloss = stripMd(String(v).trim());
+      if (gloss) rows.push({ gloss, pos: field });
+    }
+    add("noun");
+    add("verb");
+    add("adj");
+    add("adv");
+    if (!rows.length && w.glo) {
+      const gloss = stripMd(String(w.glo).trim());
+      if (gloss) rows.push({ gloss, pos: String(w.cla || "glo").toLowerCase() });
+    }
+    return rows;
   }
 
   function pickGlosses(w) {
@@ -94,6 +115,7 @@ window.dataReady = (async function loadData() {
       script: w.writ || "",
       pos: w.cla || "",
       glosses: pickGlosses(w),
+      senses: sensesFromWord(w),
       etym: namesFrom(w.etym),
       deriv: namesFrom(w.deriv),
       see: namesFrom(w.see),
