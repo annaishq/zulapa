@@ -1,4 +1,4 @@
-# Deploy `zoom/` to GitHub Pages (static site + optional S3 audio mirror). Lexicon is synced from `src/db.json` first.
+# Deploy `website/` to GitHub Pages (static site + optional S3 audio mirror). Lexicon is synced from `src/db.json` first.
 
 name: Deploy GitHub Pages
 
@@ -26,18 +26,18 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Sync lexicon for site
-        run: cp src/db.json zoom/db.json
+        run: cp src/db.json website/db.json
 
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
 
       - name: Generate IPA allowlist
-        working-directory: zoom
+        working-directory: website
         run: node scripts/generate-allowlist.mjs
 
       - name: Sync audio from S3
-        working-directory: zoom
+        working-directory: website
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -54,7 +54,7 @@ jobs:
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: zoom
+          path: website
 
       - id: deploy
         uses: actions/deploy-pages@v4

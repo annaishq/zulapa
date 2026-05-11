@@ -10,7 +10,7 @@
   "scripts": {
     "makedb": "ts-node src/conlang/index.ts",
     "makedb:watch": "npm run makedb; fswatch -r -o src/conlang -o src/conlib | xargs -n1 -I{} npm run makedb",
-    "sync-zoom-db": "cp src/db.json zoom/db.json",
+    "sync-website-db": "cp src/db.json website/db.json",
     "test": "jest -c setup/jest.js",
     "test:watch": "jest -c setup/jest.js --watch --coverage false",
     "roots": "ts-node src/roots.ts",
