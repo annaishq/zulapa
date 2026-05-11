@@ -31,7 +31,7 @@ export const PhraseWrap = styled.div`
     ${
       /*opacity: 0;
     visibility: hidden;*/ ''
-    }
+  }
   }
   &.nsfw {
     background: ${COLORS.nsfw_bg};
@@ -56,31 +56,11 @@ export const Trad = styled.div`
     filter: grayscale(0%) hue-rotate(45deg) saturate(1.5);
     opacity: 1;
   }
-  &:not(.fix) {
-    transition: opacity 0.2s ease-in 0s, visibility 0.2s ease-in 0.5s;
-    position: absolute;
-    opacity: 1;
-    visibility: visible;
-    top: -2.5em;
-    left: 1em;
-    z-index: 2;
-    background: ${COLORS.phrase_glo_bg};
-    color: ${COLORS.trad_color};
-    white-space: nowrap;
-    padding: 0.9em 1.2em 0.1em;
-    border-radius: 0.1em 0.1em 0px 0px;
-    border-width: 0.1em;
-    border-style: solid;
-    border-color: ${COLORS.glo_border} ${COLORS.glo_border} #00000000;
-    border-image: initial;
-  }
-  &.fix {
     margin: 0.2em 0;
     background: ${COLORS.fix_bg};
     color: ${COLORS.fix_color};
     border-radius: 0.2em;
     padding: 0.2em 0.4em;
-  }
 `
 
 export const Info = styled.div`
