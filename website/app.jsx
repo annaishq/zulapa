@@ -501,6 +501,25 @@ function App() {
     [openWord, openArticle, openPhrase],
   );
 
+  const articleCtx = useMemo(
+    () => ({
+      onOpenWord: (slug, opts) => {
+        if (!slug) return;
+        trail.clear();
+        openWord(slug, opts);
+      },
+      onOpenArticle: openArticle,
+      onOpenPhrase: (phraseId) => {
+        if (!phraseId) return;
+        const id = String(phraseId).startsWith("phrase-") ? String(phraseId) : "phrase-" + phraseId;
+        if (!window.PHRASES[id] && !window.CAPTIONS[id]) return;
+        trail.clear();
+        openPhrase(phraseId);
+      },
+    }),
+    [trail, openWord, openArticle, openPhrase],
+  );
+
   // expose for cross-component link clicks (legacy hook)
   window.__keo = ctx;
 
@@ -521,7 +540,7 @@ function App() {
       />
 
       <main className="main">
-        <MemoArticle slug={articleSlug} ctx={ctx} />
+        <MemoArticle slug={articleSlug} ctx={articleCtx} />
       </main>
 
       <ReferencePanel
