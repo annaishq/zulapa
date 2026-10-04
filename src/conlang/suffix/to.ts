@@ -14,3 +14,9 @@ export const toda = word('toda', {
   see: () => [_.tosh, _.nuda, _.wida],
   etym: () => [_.to, _.da],
 })
+
+export const tonu = word('tonu', {
+  verb: 'to sing around trees, to give out',
+  see: () => [_.nuto, _.nuda, _.toda],
+  etym: () => [_.to, _.nu],
+})

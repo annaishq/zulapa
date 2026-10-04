@@ -28,3 +28,9 @@ export const yanu = word('yanu', {
   noun: 'crone',
   etym: () => [_.ya, _.nu],
 })
+
+export const nuto = word('nuto', {
+  verb: 'to breathe into the wind, to take in',
+  see: () => [_.tonu, _.nuda, _.toda],
+  etym: () => [_.nu, _.to],
+})

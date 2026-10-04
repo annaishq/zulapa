@@ -3636,7 +3636,7 @@
 - **Gloss:** FEM
 - **Verb:** to feel
 - **Adj:** feminine
-- **Derived terms:** dunu, jonu, junu, nonu, xinu, omunu, unushim, thanu, nuda, yanu
+- **Derived terms:** dunu, jonu, junu, nonu, xinu, omunu, unushim, thanu, nuda, yanu, nuto, tonu
 - **See also:** subj
 
 ### nuda (నుదా) /nuda/ — noun
@@ -3657,7 +3657,7 @@
 ### to (తో) /tɔ/ — noun
 - **Gloss:** MASC
 - **Adj:** masculine
-- **Derived terms:** duto, joto, noto, xito, taj, thato, toda
+- **Derived terms:** duto, joto, noto, xito, taj, thato, nuto, toda, tonu
 - **See also:** subj, tosh
 
 ### toda (తోదా) /tɔda/ — noun
@@ -4447,9 +4447,25 @@
 - **Gloss:** *CARE*
 - **Derived terms:** agi, gai, gui, ilir, mi, leirui, gi
 
+### nuto (నుతో) /nutɔ/ — verb
+- **Gloss:** breathe into the wind, to take in
+- **Etymology:**
+  nuto
+  nu.to
+  FEM.MASC
+- **See also:** tonu, nuda, toda
+
 ### o (ఓ) /ɔ/ — verb
 - **Gloss:** *PUSH*
 - **Derived terms:** go, ago, dao, mado, nasho, odo, leiruo, rumo, sheo, tajo
+
+### tonu (తోను) /tɔnu/ — verb
+- **Gloss:** sing around trees, to give out
+- **Etymology:**
+  tonu
+  to.nu
+  MASC.FEM
+- **See also:** nuto, nuda, toda
 
 ### u (ఉ) /u/ — verb
 - **Gloss:** *PULL*

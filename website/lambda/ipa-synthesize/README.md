@@ -4,7 +4,8 @@ Function URL handler: **OPTIONS** (CORS), **POST** JSON `{ "phon": "<exact from 
 
 ## Bundle before deploy
 
-1. From repo root: `cp audio-allowlist.json lambda/ipa-synthesize/allowlist.json`
+1. From `website/` (after `node scripts/generate-allowlist.mjs`):  
+   `cp audio-allowlist.json lambda/ipa-synthesize/allowlist.json`
 2. `cd lambda/ipa-synthesize && npm ci && zip -r function.zip index.mjs allowlist.json node_modules`
 
 ## Environment
@@ -15,7 +16,7 @@ Function URL handler: **OPTIONS** (CORS), **POST** JSON `{ "phon": "<exact from 
 | `ALLOWLIST_PATH`    | Optional absolute path to allowlist  |
 | `CORS_ALLOW_ORIGIN` | Default `*`                          |
 
-Use execution role with `polly:SynthesizeSpeech`, `s3:PutObject`, `s3:GetObject`, `s3:HeadObject` on the bucket ARN.
+Use execution role with `polly:SynthesizeSpeech`, `s3:PutObject`, and `s3:GetObject` on `arn:aws:s3:::BUCKET/audio/*` (`HeadObject` uses the **GetObject** IAM action).
 
 Enable **Function URL** (HTTP API) with CORS if not handled in code.
 

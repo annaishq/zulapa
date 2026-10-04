@@ -2,9 +2,11 @@
 
 This guide assumes the static site already deploys from GitHub Actions (see [Deploy GitHub Pages workflow](../../.github/workflows/deploy.yml)). It walks through **opening AWS**, wiring **S3**, **Lambda + Polly**, **GitHub secrets** (optional), and **production config** so inline IPA can play from your bucket and/or Lambda.
 
+**Production URL:** the public site is **https://zulapa.com**, served by **GitHub Pages** behind a **custom domain** (registrar **CNAME** toward GitHub’s Pages targets, plus the domain set under the repo **Settings → Pages**). Use **`https://zulapa.com`** as the **exact origin** in S3 and Lambda CORS rules. If you also use **`https://www.zulapa.com`**, include that origin as well. Enable **Enforce HTTPS** in Pages when GitHub offers it.
+
 Do **not** put secret keys or URLs with embedded credentials into git. Use GitHub encrypted secrets and your live `index.html` config only where appropriate.
 
-References: [audio-pipeline.md](./audio-pipeline.md), [`lambda/ipa-synthesize/README.md`](../lambda/ipa-synthesize/README.md), [`PROMPT_REMAINING_WORK.md`](../PROMPT_REMAINING_WORK.md).
+References: [audio-pipeline.md](./audio-pipeline.md), [**step-by-step walkthrough**](./lambda-ipa-audio-walkthrough.md) (Lambda code + ordered checklist), [`lambda/ipa-synthesize/README.md`](../lambda/ipa-synthesize/README.md), [`PROMPT_REMAINING_WORK.md`](../PROMPT_REMAINING_WORK.md).
 
 ---
 
@@ -29,7 +31,7 @@ References: [audio-pipeline.md](./audio-pipeline.md), [`lambda/ipa-synthesize/RE
 
 ## Phase B: S3 bucket for MP3 objects
 
-Goal: bucket holds objects at **`audio/{key}.mp3`** matching [audio-pipeline.md](./audio-pipeline.md). The browser will **GET** these from your GitHub Pages origin via public URLs or cross-origin fetch, so CORS must allow your site.
+Goal: bucket holds objects at **`audio/{key}.mp3`** matching [audio-pipeline.md](./audio-pipeline.md). The browser loads the app from **https://zulapa.com** and fetches audio via same-origin **`/audio/`**, direct S3 URLs, or Lambda—so the bucket **CORS** configuration must allow the **zulapa.com** origin.
 
 1. **Create bucket**
    - **S3** → **Create bucket**.
@@ -45,7 +47,7 @@ Goal: bucket holds objects at **`audio/{key}.mp3`** matching [audio-pipeline.md]
 3. **CORS on the bucket**
    - Bucket → **Permissions** → **Cross-origin resource sharing (CORS)**.
    - Add a rule that allows:
-     - **AllowedOrigins**: your GitHub Pages URL (exact origin, e.g. `https://yourname.github.io`) and optionally `http://localhost:8080` (or whichever port you use locally).
+     - **AllowedOrigins**: **`https://zulapa.com`** (must match how users open the site; add **`https://www.zulapa.com`** if you use www). Optionally add **`http://localhost:8080`** (or your local dev origin) for testing only.
      - **AllowedMethods**: `GET`, `HEAD`.
      - **AllowedHeaders**: `*` or minimal set (`Range`, etc., if needed).
 
@@ -94,11 +96,12 @@ Code lives in [website/lambda/ipa-synthesize/](../lambda/ipa-synthesize/).
 
 4. **Function URL**
    - Lambda → **Configuration** → **Function URL** → **Create**.
-   - **Auth**: **NONE** only if you accept public invocation; alternatively use IAM auth and a different client flow (advanced). For browsers calling from Pages, HTTPS Function URL + CORS is common.
+   - **Auth**: **NONE** only if you accept public invocation; alternatively use IAM auth and a different client flow (advanced). For browsers calling from **https://zulapa.com**, HTTPS Function URL + CORS is common.
    - Note the **HTTPS URL**; this becomes **`generateUrl`** in [index.html](../index.html).
 
 5. **CORS on Function URL**
-   - Allow **POST** and **OPTIONS** from your Pages origin (`https://yourname.github.io`); allow needed headers (`content-type`).
+   - Allow **POST** and **OPTIONS** from **`https://zulapa.com`** (and **`https://www.zulapa.com`** if applicable). For local static serving (e.g. this site on **`http://localhost:8080`**), add that origin too so `fetch` from the browser is allowed.
+   - Allow needed headers (e.g. `content-type`).
    - Test with `curl`:
      - `OPTIONS` to the URL with `-i`
      - `POST` JSON body `{ "phon": "<exact phon from db.json>", "voice": "Zeina" }` and expect `{ "url", "cached" }` (shape per implementation).
@@ -117,7 +120,7 @@ Typical meanings:
 
 | Key | Purpose |
 |-----|----------|
-| `ghAudioBase` | Usually empty string so resolution tries same-origin **`/audio/`** on Pages first. |
+| `ghAudioBase` | Usually empty string so resolution tries same-origin **`/audio/`** on **https://zulapa.com** first. |
 | `s3AudioBase` | Public base URL ending in **`audio/`** (your S3 public prefix). |
 | `generateUrl` | Lambda Function URL from Phase D. |
 | `voice` | Polly voice id used for allowlist (e.g. `Zeina`). |
@@ -143,7 +146,7 @@ If you skip secrets, Pages still ships; **`/audio/`** stays empty unless you upl
 
 ## Phase G: End-to-end checks
 
-1. Open the **published** Pages URL (**not only localhost**) and load an entry whose IPA is **allowlisted**.
+1. Open **https://zulapa.com** (**not only localhost**) and load an entry whose IPA is **allowlisted**.
 2. In browser DevTools → **Network**: verify attempts to **`/audio/...mp3`** and/or **`s3.../audio/...`** and/or **POST** to Function URL succeed.
 3. Unlisted IPA should still fall back sensibly ([audio-resolve.js](../audio-resolve.js) behavior).
 

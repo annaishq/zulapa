@@ -815,7 +815,7 @@ kbd {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 10px 18px;
   align-items: end;
-  margin-bottom: 12px;
+  margin-bottom: 32px;
 }
 .k-entry__col-left {
   display: flex;
@@ -828,7 +828,7 @@ kbd {
   min-width: 0;
 }
 .k-entry__word {
-  font-size: 32px;
+  font-size: 48px;
   font-weight: 500;
   color: var(--accent);
   margin: 0;
@@ -872,7 +872,7 @@ button.k-ipa-link {
   column-gap: 14px;
   row-gap: 5px;
   align-items: baseline;
-  font-size: 17px;
+  font-size: 24px;
   line-height: 1.35;
 }
 .k-entry__sense {
@@ -908,7 +908,7 @@ button.k-ipa-link {
   color: var(--ink-faint);
   font-weight: 600;
 }
-.k-entry__sec p { margin: 0; color: var(--ink-soft); font-size: 13.5px; line-height: 1.55; }
+.k-entry__sec p { margin: 0; color: var(--ink-soft); font-size: 18px; line-height: 1.55; }
 
 .k-entry__rel {
   font-size: 13.5px;

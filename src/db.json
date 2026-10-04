@@ -15838,7 +15838,9 @@
         "word-unushim",
         "word-thanu",
         "word-nuda",
-        "word-yanu"
+        "word-yanu",
+        "word-nuto",
+        "word-tonu"
       ],
       "phrases": [
         "phrase-65",
@@ -15929,6 +15931,27 @@
       "writ": "యాను",
       "phon": "/janu/"
     },
+    "word-nuto": {
+      "name": "nuto",
+      "type": "word",
+      "verb": "to breathe into the wind, to take in",
+      "see": [
+        "word-tonu",
+        "word-nuda",
+        "word-toda"
+      ],
+      "etym": [
+        "word-nu",
+        "word-to"
+      ],
+      "forcedGlo": false,
+      "glo": "**breathe into the wind, to take in**",
+      "cla": "verb",
+      "id": "word-nuto",
+      "fulltext": "nuto",
+      "writ": "నుతో",
+      "phon": "/nutɔ/"
+    },
     "word-nur": {
       "name": "nur",
       "type": "word",
@@ -15998,7 +16021,9 @@
         "word-xito",
         "word-taj",
         "word-thato",
-        "word-toda"
+        "word-nuto",
+        "word-toda",
+        "word-tonu"
       ],
       "phrases": [
         "phrase-100",
@@ -16051,6 +16076,27 @@
         "phrase-221",
         "phrase-359"
       ]
+    },
+    "word-tonu": {
+      "name": "tonu",
+      "type": "word",
+      "verb": "to sing around trees, to give out",
+      "see": [
+        "word-nuto",
+        "word-nuda",
+        "word-toda"
+      ],
+      "etym": [
+        "word-to",
+        "word-nu"
+      ],
+      "forcedGlo": false,
+      "glo": "**sing around trees, to give out**",
+      "cla": "verb",
+      "id": "word-tonu",
+      "fulltext": "tonu",
+      "writ": "తోను",
+      "phon": "/tɔnu/"
     },
     "word-pa": {
       "name": "pa",
