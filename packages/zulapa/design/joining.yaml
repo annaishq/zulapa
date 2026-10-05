@@ -1,0 +1,417 @@
+# The rules of joining two morphemes into one word.
+#
+# A rule is a name, a text and cases. A case has three states. `before` is
+# the word so far, as morphemes with spaces between them. `part` is the
+# morpheme that joins it. `after` is the word they make, with its `class`
+# (noun, verb, adj, adv or def) and its `gloss`. A `translation` may say
+# what the word means.
+#
+# `legacy` is the whole chain for the frozen engine, with ids and dots, when
+# an id is not the name. `source` says where the case comes from.
+#
+# A rule with a `conflict` is not settled: its cases do not agree, and
+# `open` is the question to answer. A settled rule may differ from the
+# frozen engine: the rule holds, and the engine is what is wrong.
+
+family: Joining
+rules:
+  - name: A vowel next to a consonant
+    text: >-
+      A consonant and a vowel join with nothing between them, in either order.
+    cases:
+      - before: fa
+        part: ti
+        after: fati
+        class: noun
+        gloss: eyes-2SG.POSS
+        translation: your eyes
+      - before: o
+        part: zu
+        after: ozu
+        class: verb
+        gloss: 1-love
+        translation: I love.
+      - before: mun
+        part: uki
+        after: munuki
+        class: noun
+        gloss: breast-long
+        translation: a long breast
+      - before: tan
+        part: em
+        legacy: tan.emPST
+        after: tanem
+        class: noun
+        gloss: sign-PST
+        translation: a sign, in the past
+
+  - name: Two consonants
+    text: Two consonants join with nothing between them.
+    cases:
+      - before: mun
+        part: ti
+        after: munti
+        class: noun
+        gloss: breast-2SG.POSS
+        translation: your breast
+      - before: dak
+        part: ti
+        after: dakti
+        class: noun
+        gloss: shell-2SG.POSS
+        translation: your shell, your secrets
+        source: phrase 192
+      - before: doth
+        part: tana
+        after: dothtana
+        class: noun
+        gloss: beans-script
+        translation: bean-script
+        source: phrase 188
+      - before: ish
+        part: kei
+        after: ishkei
+        class: noun
+        gloss: leaf.acceptance-MASTER
+        translation: welcoming Master
+        source: phrase 189
+      - before: ish
+        part: sa
+        after: ishsa
+        class: noun
+        gloss: leaf.acceptance-3SG.POSS
+        translation: their acceptance
+        source: phrase 191
+
+  - name: Pairs that do not join
+    text: >-
+      Five pairs of consonants do not join: `l` before `r`, `l` before `q`,
+      `t` before `th`, `k` before `q`, and `x` before `p`, `b`, `k` or `g`.
+      The last vowel of the first morpheme is repeated between them.
+    cases:
+      - before: pal
+        part: raj
+        after: palaraj
+        class: noun
+        gloss: butt-EP-creature
+        translation: a butt creature
+        source: phrase 182
+      - before: pal
+        part: qa
+        after: palaqa
+        class: noun
+        gloss: butt-EP-SINGULAR
+        translation: a butt that is one
+        source: Anna
+      - before: lat
+        part: tha
+        after: latatha
+        class: adj
+        gloss: wild-EP-far
+        translation: wild, far up
+        source: phrase 181
+      - before: dak
+        part: qa
+        after: dakaqa
+        class: noun
+        gloss: shell-EP-SINGULAR
+        translation: the hidden self, a shell that is one
+      - before: nux
+        part: pa
+        after: nuxupa
+        class: noun
+        gloss: hubris-EP-all
+        translation: all hubris
+      - before: nux
+        part: ti
+        after: nuxti
+        class: noun
+        gloss: hubris-2SG.POSS
+        translation: your hubris
+  - name: The same consonant twice
+    text: >-
+      A consonant does not join itself. The last vowel of the first morpheme
+      is repeated between the two.
+    cases:
+      - before: pal
+        part: lam
+        after: palalam
+        class: noun
+        gloss: butt-EP-water
+        translation: diarrhea, butt-water
+        source: phrase 184
+      - before: qap
+        part: pa
+        after: qapapa
+        class: verb
+        gloss: jump-EP-all
+        translation: to jump everywhere, to be a fool
+        source: phrase 195
+      - before: lil
+        part: lo
+        after: lililo
+        class: adj
+        gloss: DIM-EP-WET
+        translation: small and surrendered
+  - name: A prefix before a vowel
+    text: A prefix that ends with a vowel joins a vowel with `x`.
+    cases:
+      - before: o
+        part: agu
+        after: oxagu
+        class: verb
+        gloss: 1-EP-listen
+        translation: I listen.
+      - before: i
+        part: odu
+        after: ixodu
+        class: verb
+        gloss: 2SG-EP-come
+        translation: You come.
+        source: phrase 30
+      - before: ne
+        part: agu
+        after: nexagu
+        class: noun
+        gloss: NEG-EP-ear
+        translation: not an ear
+      - before: o lu
+        part: agu
+        after: oluxagu
+        class: verb
+        gloss: 1-CONT-EP-listen
+        translation: I am listening.
+  - name: A subject with a modifier before a vowel
+    text: >-
+      A subject with a modifier, such as `okei`, `ode` or `oqa`, joins a vowel
+      with `x`, like the subject alone.
+    cases:
+      - before: o kei
+        part: agu
+        after: okeixagu
+        class: verb
+        gloss: 1-MASTER-EP-listen
+        translation: I, Master, listen.
+      - before: i yi
+        part: agu
+        after: iyixagu
+        class: verb
+        gloss: 2SG-TINY-EP-listen
+        translation: You, tiny one, listen.
+      - before: o de
+        part: agu
+        after: odexagu
+        class: verb
+        gloss: 1-DU-EP-listen
+        translation: The two of us listen.
+      - before: o pi
+        part: agu
+        after: opixagu
+        class: verb
+        gloss: 1-SG-EP-listen
+        translation: I, myself, listen.
+      - before: o qa
+        part: agu
+        after: oqaxagu
+        class: verb
+        gloss: 1-SINGULAR-EP-listen
+        translation: Every one of us listens.
+  - name: Gender and doer before a vowel
+    text: >-
+      The gender prefixes `nu`, `to` and the doer prefix `fu` join a vowel
+      with nothing between them.
+    cases:
+      - before: nu
+        part: agu
+        after: nuagu
+        class: noun
+        gloss: F-ear
+        translation: a girl's ear
+      - before: to
+        part: agu
+        after: toagu
+        class: noun
+        gloss: M-ear
+        translation: a boy's ear
+      - before: fu
+        part: agu
+        after: fuagu
+        class: noun
+        gloss: ERG-ear
+        translation: by the ear
+      - before: nu o
+        part: zu
+        after: nuozu
+        class: verb
+        gloss: F-1-love
+        translation: I, a girl, love.
+        source: phrase 129
+
+  - name: The infinite subject before a vowel
+    text: >-
+      The infinite subject `u` merges with the vowel that follows it: they
+      join with nothing between them, at the start of a word or after another
+      prefix. Before another `u`, it takes `x`.
+    cases:
+      - before: u
+        part: agu
+        after: uagu
+        class: verb
+        gloss: INF-listen
+        translation: to listen
+      - before: es u
+        part: agu
+        after: esuagu
+        class: verb
+        gloss: PASS-INF-listen
+        translation: There is listening.
+      - before: u
+        part: uki
+        after: uxuki
+        class: verb
+        gloss: INF-EP-long
+        translation: to be long
+
+  - name: A suffix after a vowel
+    text: >-
+      A suffix that starts with a vowel joins a morpheme that ends with a
+      vowel with `l`. A `y` at the end of a morpheme counts as a vowel.
+    cases:
+      - before: o fa
+        part: em
+        legacy: o.fa.emPST
+        after: ofalem
+        class: verb
+        gloss: 1-see-EP-PST
+        translation: I saw.
+      - before: o fa
+        part: ir
+        legacy: o.fa.irFUT
+        after: ofalir
+        class: verb
+        gloss: 1-see-EP-FUT
+        translation: I will see.
+      - before: o fa
+        part: iri
+        after: ofaliri
+        class: verb
+        gloss: 1-see-EP-CRAS
+        translation: I will see, tomorrow.
+      - before: fa
+        part: uki
+        after: faluki
+        class: noun
+        gloss: eyes-EP-long
+        translation: long eyes
+      - before: meny
+        part: em
+        legacy: meny.emPST
+        after: menylem
+        class: noun
+        gloss: dance-EP-PST
+        translation: a dance, in the past
+
+  - name: y next to y
+    text: A `y` joins another `y` with `n`.
+    cases:
+      - before: meny
+        part: y
+        legacy: meny.y$
+        after: menyny
+        class: noun
+        gloss: dance-EP-DANCE
+        translation: a dancing dance
+      - before: my
+        part: y
+        legacy: my.y$
+        after: myny
+        class: noun
+        gloss: trace-EP-DANCE
+        translation: a dancing trace
+  - name: The passive
+    text: >-
+      As a prefix, `es` joins a vowel with nothing between them, and takes `e`
+      before `sh`. As a suffix, it joins a vowel with `n`.
+    cases:
+      - before: es o
+        part: zu
+        after: esozu
+        class: verb
+        gloss: PASS-1-love
+        translation: I am loved.
+      - before: es i lu mi
+        part: em
+        legacy: es.i.lu.mi.emPST
+        after: esilumilem
+        class: verb
+        gloss: PASS-2SG-CONT-caress-EP-PST
+        translation: You were being caressed.
+        source: phrase 338
+      - before: es
+        part: sha
+        after: esesha
+        class: verb
+        gloss: PASS-EP-3PL
+        translation: several of them, in the passive
+        source: the Passive card
+      - before: fa
+        part: es
+        after: fanes
+        class: noun
+        gloss: eyes-EP-NMLZ
+        translation: the state of the eyes
+      - before: tan
+        part: es
+        after: tanes
+        class: noun
+        gloss: sign-NMLZ
+        translation: the state of a sign
+  - name: The accusative
+    text: >-
+      The accusative `m` joins with nothing before it, after a vowel or a
+      consonant.
+    cases:
+      - before: fa
+        part: m
+        after: fam
+        class: noun
+        gloss: eyes-ACC
+        translation: the eyes, as an object
+      - before: tan
+        part: m
+        after: tanm
+        class: noun
+        gloss: sign-ACC
+        translation: the sign, as an object
+        source: phrase 54
+      - before: yin
+        part: m
+        after: yinm
+        class: noun
+        gloss: vulva-ACC
+        translation: the vulva, as an object
+        source: phrase 20
+  - name: The subordinate after a consonant
+    text: >-
+      The subordinate `n` after a consonant repeats the last vowel of the
+      morpheme before it.
+    cases:
+      - before: fa
+        part: n
+        after: fan
+        class: verb
+        gloss: see-SUB
+        translation: that one sees
+      - before: tan
+        part: n
+        after: tanan
+        class: verb
+        gloss: sign-EP-SUB
+        translation: that it is a sign
+      - before: u la
+        part: n
+        after: ulan
+        class: verb
+        gloss: INF-kiss-SUB
+        translation: kissing, as what is desired
+        source: phrase 314

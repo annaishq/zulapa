@@ -1,0 +1,10 @@
+{
+  "name": "zulapa",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Zulapa compiler. For now it holds the rules of the language as fixtures, under design/.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,216 @@
+# The rules of the phrase: how words stand together.
+#
+# A case is a phrase. `text` is the phrase as it is written. A mark such
+# as `?` stands apart, and is not a word. `words` lists
+# the morphemes of each word, with spaces between them. `gloss` has one
+# gloss for each word, and `translation` is the meaning of the whole.
+# `legacy` lists the chain of each word for the frozen engine, with ids and
+# dots, when an id is not the name.
+
+family: Phrases
+rules:
+  - name: The subject is on the verb
+    text: >-
+      A verb starts with its subject. A word for the one who acts may stand
+      beside it, and is often left out.
+    cases:
+      - text: ozu tim
+        words: [o zu, ti m]
+        gloss: 1-love 2SG.POSS-ACC
+        translation: I love you.
+        source: phrase 56
+      - text: sanu alipa
+        words: [sa nu, a lipa]
+        gloss: 3SG.POSS-F 3SG-sing
+        translation: She sings.
+        source: phrase 327
+
+  - name: The object takes m
+    text: The thing that the action is done to takes the accusative `m`.
+    cases:
+      - text: omi samtim
+        words: [o mi, sam ti m]
+        gloss: 1-caress foot-2SG.POSS-ACC
+        translation: I massage your foot.
+        source: phrase 349
+
+  - name: m stands at the end of the object
+    text: >-
+      When the object is several words, `m` is on the last one. When the
+      words of the object are apart, each takes `m`.
+    cases:
+      - text: afo John palm
+        words: [a fo, John, pal m]
+        gloss: 3SG-whip John butt-ACC
+        translation: They whip John's butt.
+        source: phrase 166
+      - text: afo palwu Johnm
+        words: [a fo, pal wu, John m]
+        gloss: 3SG-whip butt-GEN John-ACC
+        translation: They whip the butt of John.
+        source: phrase 167
+      - text: palm afo Johnm
+        words: [pal m, a fo, John m]
+        gloss: butt-ACC 3SG-whip John-ACC
+        translation: The butt, they whip, of John.
+        source: phrase 168
+
+  - name: The one who receives takes ni
+    text: The one that the action is for takes the dative `ni`, as a prefix.
+    cases:
+      - text: John aguwu tamem niJane
+        words: [John, a guwu, tame m, ni Jane]
+        gloss: John 3SG-give ball-ACC DAT-Jane
+        translation: John gives the ball to Jane.
+        source: phrase 159
+
+  - name: The one who acts may take fu
+    text: >-
+      The one who acts may take the ergative `fu`, as a prefix. It is used
+      to stress who acts, or when the phrase is not clear without it.
+    cases:
+      - text: fuJane John palm afoliri
+        words: [fu Jane, John, pal m, a fo iri]
+        gloss: ERG-Jane John butt-ACC 3SG-whip-EP-CRAS
+        translation: Jane will whip John's butt tomorrow.
+        source: phrase 172
+
+  - name: The order of the words is free
+    text: >-
+      The cases say what each word does, so the words may stand in any
+      order. What comes last is what the phrase stresses.
+    cases:
+      - text: Jane afoliri John palm
+        words: [Jane, a fo iri, John, pal m]
+        gloss: Jane 3SG-whip-EP-CRAS John butt-ACC
+        translation: Jane will whip John's butt tomorrow.
+        source: phrase 174
+      - text: Jane afoliri palwu Johnm
+        words: [Jane, a fo iri, pal wu, John m]
+        gloss: Jane 3SG-whip-EP-CRAS butt-GEN John-ACC
+        translation: Jane will whip John's butt tomorrow.
+        source: phrase 173
+      - text: palwu Johnm afoliri fuJane
+        words: [pal wu, John m, a fo iri, fu Jane]
+        gloss: butt-GEN John-ACC 3SG-whip-EP-CRAS ERG-Jane
+        translation: Jane will whip John's butt tomorrow.
+        source: phrase 169
+
+  - name: wa ends the topic
+    text: >-
+      `wa` ends the part of the phrase that is known. What follows is what
+      the phrase says about it.
+    cases:
+      - text: Jane afoliriwa John palm
+        words: [Jane, a fo iri wa, John, pal m]
+        gloss: Jane 3SG-whip-EP-CRAS-TOP John butt-ACC
+        translation: Jane will whip tomorrow, and it is John's butt.
+        source: phrase 175
+
+  - name: An order is a root alone
+    text: >-
+      An order to the one spoken to is a root with no subject. Its object
+      may leave out `m`, and the word for whose it is.
+    cases:
+      - text: la lam
+        words: [la, la m]
+        legacy: [la.imp, la.m]
+        gloss: kiss lips-ACC
+        translation: Kiss my lips.
+        source: phrase 345
+      - text: la la
+        words: [la, la]
+        legacy: [la.imp, la]
+        gloss: kiss lips
+        translation: Kiss my lips.
+        source: phrase 339
+
+  - name: The passive
+    text: >-
+      With `es`, the subject on the verb is the one that the action is done
+      to. The word for it takes no case.
+    cases:
+      - text: samti esami
+        words: [sam ti, es a mi]
+        gloss: foot-2SG.POSS PASS-3SG-caress
+        translation: Your foot is massaged.
+        source: phrase 350
+
+  - name: No verb to be
+    text: >-
+      A property is said as something that happens to its owner: the
+      passive, with the continuous `lu`.
+    cases:
+      - text: sanu esaluxawi
+        words: [sa nu, es a lu awi]
+        gloss: 3SG.POSS-F PASS-3SG-CONT-EP-glow
+        translation: She is beautiful.
+        source: phrase 94
+
+  - name: A phrase with no subject
+    text: >-
+      What happens with no one who acts is said with the passive and the
+      infinite subject.
+    cases:
+      - text: esugai
+        words: [es u gai]
+        gloss: PASS-INF-rain
+        translation: It rains.
+        source: phrase 362
+
+  - name: A phrase inside a phrase
+    text: >-
+      The verb of a phrase that is the object of another takes the
+      subordinate `n`. The two phrases may stand in either order.
+    cases:
+      - text: ogama alipan
+        words: [o gama, a lipa n]
+        gloss: 1-know 3SG-sing-SUB
+        translation: I know that she sings.
+        source: phrase 311
+      - text: alipan ogama
+        words: [a lipa n, o gama]
+        gloss: 3SG-sing-SUB 1-know
+        translation: She sings, I know.
+        source: phrase 312
+
+  - name: Whose it is
+    text: >-
+      The word for the owner stands before the thing or after it, in one
+      word. With `wu`, it stands apart.
+    cases:
+      - text: tima
+        words: [ti ma]
+        gloss: 2SG.POSS-hand
+        translation: your hand
+        source: phrase 315
+      - text: mati
+        words: [ma ti]
+        gloss: hand-2SG.POSS
+        translation: your hand
+      - text: mawu ti
+        words: [ma wu, ti]
+        gloss: hand-GEN 2SG.POSS
+        translation: the hand of you
+        source: phrase 317
+
+  - name: You, as an object
+    text: >-
+      Three words say *you* as an object. `tim` is built on *your*, `im` on
+      the subject, and `idam` on the subject and `da`, the self in its body.
+    cases:
+      - text: ozu tim
+        words: [o zu, ti m]
+        gloss: 1-love 2SG.POSS-ACC
+        translation: I love you, on your own path.
+        source: phrase 320
+      - text: ozu im
+        words: [o zu, i m]
+        gloss: 1-love 2SG-ACC
+        translation: I love you, a bit formal.
+        source: phrase 321
+      - text: ozu idam
+        words: [o zu, i da m]
+        gloss: 1-love 2SG-self-ACC
+        translation: I love you, alive in a body.
+        source: phrase 319

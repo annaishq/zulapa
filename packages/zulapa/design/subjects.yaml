@@ -1,0 +1,119 @@
+# The rules of the subjects: what a subject does to the word it starts.
+#
+# The shape of a rule and of a case is described in joining.yaml.
+
+family: Subjects
+rules:
+  - name: A subject makes an action
+    text: >-
+      A subject before a root makes an action. The root takes its reading as a
+      verb.
+    cases:
+      - before: o
+        part: zu
+        after: ozu
+        class: verb
+        gloss: 1-love
+        translation: I love.
+      - before: o
+        part: agu
+        after: oxagu
+        class: verb
+        gloss: 1-EP-listen
+        translation: I listen.
+      - before: i
+        part: agu
+        after: ixagu
+        class: verb
+        gloss: 2SG-EP-listen
+        translation: You listen.
+      - before: a
+        part: agu
+        after: axagu
+        class: verb
+        gloss: 3SG-EP-listen
+        translation: They listen, one person.
+      - before: u
+        part: agu
+        after: uagu
+        class: verb
+        gloss: INF-listen
+        translation: to listen
+
+  - name: A plural subject makes an action
+    text: >-
+      The plural subjects `sho`, `shi` and `sha` make an action, like the
+      others.
+    cases:
+      - before: sho
+        part: zu
+        after: shozu
+        class: verb
+        gloss: 1PL-love
+        translation: We love.
+      - before: sho
+        part: agu
+        after: shoxagu
+        class: verb
+        gloss: 1PL-EP-listen
+        translation: We listen.
+      - before: shi
+        part: agu
+        after: shixagu
+        class: verb
+        gloss: 2PL-EP-listen
+        translation: You listen, several people.
+      - before: sha
+        part: agu
+        after: shaxagu
+        class: verb
+        gloss: 3PL-EP-listen
+        translation: They listen, several people.
+
+  - name: A subject with a modifier makes an action
+    text: >-
+      A subject keeps its role when a modifier follows it. The root after the
+      modifier takes its reading as a verb.
+    cases:
+      - before: o kei
+        part: zu
+        after: okeizu
+        class: verb
+        gloss: 1-MASTER-love
+        translation: I, Master, love.
+      - before: i nu
+        part: agu
+        after: inuxagu
+        class: verb
+        gloss: 2SG-F-EP-listen
+        translation: You, a girl, listen.
+      - before: o de
+        part: zu
+        after: odezu
+        class: verb
+        gloss: 1-DU-love
+        translation: The two of us love.
+      - before: o pi
+        part: zu
+        after: opizu
+        class: verb
+        gloss: 1-SG-love
+        translation: I, myself, love.
+      - before: o qa
+        part: zu
+        after: oqazu
+        class: verb
+        gloss: 1-SINGULAR-love
+        translation: Every one of us loves.
+      - before: a pe
+        part: agu
+        after: apexagu
+        class: verb
+        gloss: 3SG-INDF-EP-listen
+        translation: Some of them listen.
+      - before: sho kei
+        part: agu
+        after: shokeixagu
+        class: verb
+        gloss: 1PL-MASTER-EP-listen
+        translation: We, Masters, listen.

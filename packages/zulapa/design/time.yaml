@@ -1,0 +1,339 @@
+# The rules of time: when an action happens, and how a word says it.
+#
+# The shapes of a rule and of a case are described in joining.yaml and in
+# phrases.yaml.
+
+family: Time
+rules:
+  - name: The present has no mark
+    text: An action with no tense happens now, or at any time.
+    cases:
+      - before: o
+        part: zu
+        after: ozu
+        class: verb
+        gloss: 1-love
+        translation: I love.
+
+  - name: The past and the future
+    text: >-
+      A tense is a suffix on the action. `em` is the past, and `ir` is the
+      future.
+    cases:
+      - before: o zu
+        part: em
+        legacy: o.zu.emPST
+        after: ozulem
+        class: verb
+        gloss: 1-love-EP-PST
+        translation: I loved.
+      - before: o zu
+        part: ir
+        legacy: o.zu.irFUT
+        after: ozulir
+        class: verb
+        gloss: 1-love-EP-FUT
+        translation: I will love.
+
+  - name: How far in the past
+    text: >-
+      A vowel after `em` says how far the action is: `o` the same day or
+      night, `i` the day before, `a` near, and `u` far. `e` says *maybe*.
+    cases:
+      - before: o zu
+        part: emo
+        after: ozulemo
+        class: verb
+        gloss: 1-love-EP-PST.HOD
+        translation: I loved, earlier today.
+      - before: o zu
+        part: emi
+        after: ozulemi
+        class: verb
+        gloss: 1-love-EP-HEST
+        translation: I loved, yesterday.
+      - before: o zu
+        part: ema
+        after: ozulema
+        class: verb
+        gloss: 1-love-EP-PST.PROX
+        translation: I loved, not long ago.
+      - before: o zu
+        part: emu
+        after: ozulemu
+        class: verb
+        gloss: 1-love-EP-PST.DIST
+        translation: I loved, long ago.
+      - before: o zu
+        part: eme
+        after: ozuleme
+        class: verb
+        gloss: 1-love-EP-PST.EVNT
+        translation: Maybe I loved.
+
+  - name: How far in the future
+    text: >-
+      A vowel after `ir` says how far the action is: `o` the same day or
+      night, `i` the day after, `a` near, and `u` far. `e` says *maybe*.
+    cases:
+      - before: o zu
+        part: iro
+        after: ozuliro
+        class: verb
+        gloss: 1-love-EP-FUT.HOD
+        translation: I will love, later today or tonight.
+      - before: o zu
+        part: iri
+        after: ozuliri
+        class: verb
+        gloss: 1-love-EP-CRAS
+        translation: I will love, tomorrow.
+      - before: o zu
+        part: ira
+        after: ozulira
+        class: verb
+        gloss: 1-love-EP-FUT.PROX
+        translation: I will love, soon.
+      - before: o zu
+        part: iru
+        after: ozuliru
+        class: verb
+        gloss: 1-love-EP-FUT.DIST
+        translation: I will love, in a long time.
+      - before: o zu
+        part: ire
+        after: ozulire
+        class: verb
+        gloss: 1-love-EP-FUT.EVNT
+        translation: Maybe I will love.
+
+  - name: Always, never and now
+    text: >-
+      Three suffixes stand where a tense stands. `lau` is always, `nei` is
+      never, and `lei` is now. With `lei`, a subject that is not *you* gives
+      an order: *let us*.
+    cases:
+      - before: o zu
+        part: lau
+        after: ozulau
+        class: verb
+        gloss: 1-love-ETERN
+        translation: I always love.
+      - before: o zu
+        part: nei
+        after: ozunei
+        class: verb
+        gloss: 1-love-NEVER
+        translation: I never love.
+      - before: sho meny
+        part: lei
+        after: shomenylei
+        class: verb
+        gloss: 1PL-dance-NOW
+        translation: Let us dance!
+        source: phrase 722
+
+  - name: The place of the tense
+    text: >-
+      The tense follows the root. The passive `es` and the continuous `lu`
+      stand before the root. The subordinate `n` and the topic `wa` follow
+      the tense.
+    cases:
+      - before: es i lu mi
+        part: em
+        legacy: es.i.lu.mi.emPST
+        after: esilumilem
+        class: verb
+        gloss: PASS-2SG-CONT-caress-EP-PST
+        translation: You were being caressed.
+        source: phrase 338
+      - before: o zu em
+        part: n
+        legacy: o.zu.emPST.n
+        after: ozulemen
+        class: verb
+        gloss: 1-love-EP-PST-EP-SUB
+        translation: that I loved
+      - before: a fo iri
+        part: wa
+        after: afoliriwa
+        class: verb
+        gloss: 3SG-whip-EP-CRAS-TOP
+        translation: They will whip tomorrow, and…
+        source: phrase 175
+
+  - name: A past and a future that are felt now
+    text: >-
+      `lue` and `lui` stand where the continuous `lu` stands. With `lue`,
+      the action happened in the past, and the body feels it now, as if it
+      were happening. With `lui`, the action is desired so much that it is
+      felt real, and now. `lue` comes from `lu` and `em`, and `lui` from
+      `lu` and `ir`.
+    cases:
+      - before: o lue
+        part: noa
+        after: oluenoa
+        class: verb
+        gloss: 1-CONT.REMEMBER-touch
+        translation: My skin is feeling a past touch.
+        source: phrase 7
+      - before: o lui
+        part: noa
+        after: oluinoa
+        class: verb
+        gloss: 1-CONT.DESIRE-touch
+        translation: I desire to touch so much that I feel it now.
+        source: phrase 8
+      - text: oluela tilam
+        words: [o lue la, ti la m]
+        gloss: 1-CONT.REMEMBER-kiss 2SG.POSS-lips-ACC
+        translation: My lips are feeling your past kiss.
+      - text: oluimi bom
+        words: [o lui mi, bo m]
+        gloss: 1-CONT.DESIRE-caress belly-ACC
+        translation: I desire to caress your belly so much that I feel it now.
+        source: phrase 107
+
+  - name: A tense in a phrase
+    text: The tense is on the verb, and no other word is needed to say when.
+    cases:
+      - text: irumolemi tamem
+        words: [i rumo emi, tame m]
+        gloss: 2SG-throw-EP-HEST ball-ACC
+        translation: Yesterday, you threw the ball.
+        source: phrase 332
+      - text: to axajolemu molapam
+        words: [to, a xajo emu, mo lapa m]
+        legacy: [to, a.hajo.emu, mo.lapa.m]
+        gloss: M 3SG-take-EP-PST.DIST 1.POSS-voice-ACC
+        translation: He took my voice, long ago.
+        source: phrase 218
+      - text: ozulau tim
+        words: [o zu lau, ti m]
+        gloss: 1-love-ETERN 2SG.POSS-ACC
+        translation: I will always love you.
+        source: phrase 373
+      - text: oliunei guyilm
+        words: [o liu nei, guyil m]
+        gloss: 1-eat-NEVER apple-ACC
+        translation: I never eat apples.
+        source: phrase 375
+
+  - name: After
+    text: '`xu` before `dem` makes *after*.'
+    cases:
+      - text: olalem tim xudem afodirulem
+        words: [o la em, ti m, xu dem, a fodiru em]
+        legacy: [o.la.emPST, ti.m, xu.dem, a.fodiru.emPST]
+        gloss: 1-kiss-EP-PST 2SG.POSS-ACC after-when 3SG-fall.asleep-EP-PST
+        translation: I kissed you after they fell asleep.
+        source: phrase 69
+
+  - name: Later today and tomorrow
+    text: >-
+      `iro` is later in the same day or night: later today, or tonight. It
+      is the closest tense, as `o`, *me*, is the closest subject. `iri` is
+      the next day, as `i`, *you*, is the closest after *me*.
+    cases:
+      - text: Jane afoliri John palm
+        words: [Jane, a fo iri, John, pal m]
+        gloss: Jane 3SG-whip-EP-CRAS John butt-ACC
+        translation: Jane will whip John's butt tomorrow.
+      - text: Jane afoliro John palm
+        words: [Jane, a fo iro, John, pal m]
+        gloss: Jane 3SG-whip-EP-FUT.HOD John butt-ACC
+        translation: Jane will whip John's butt later today, or tonight.
+
+  - name: e is maybe
+    text: >-
+      The vowel `e` says that the action is not sure. `eme` is a doubt about
+      the past: *maybe it happened*. `ire` is what may come: *maybe it will
+      happen*, as *mungkin besok*, *maybe tomorrow*, in Indonesian.
+    cases:
+      - text: oxememe rogana
+        words: [o em eme, ro gana]
+        gloss: 1-EP-live-PST.EVNT INESS-earth
+        translation: Maybe, in the past, I lived on earth.
+        source: phrase 155
+      - text: azulire autim
+        words: [a zu ire, au ti m]
+        gloss: 3SG-love-EP-FUT.EVNT heart-2SG.POSS-ACC
+        translation: Maybe they will love you, someday.
+        source: phrase 372
+      - text: eja Irism imileme ?
+        words: [eja, Iris m, i mi eme]
+        gloss: plausible Iris-ACC 2SG-caress-EP-PST.EVNT
+        translation: Did you caress Iris, maybe?
+        source: phrase 209
+
+  - name: Each verb takes its tense
+    text: >-
+      In a phrase with several verbs, each verb has its own tense. A verb
+      with no tense is in the present.
+    cases:
+      - text: dem oxodulem aluxelem ropiwe
+        words: [dem, o odu em, a lu e em, ro piwe]
+        legacy: [dem, o.odu.emPST, a.lu.e.emPST, ro.piwe]
+        gloss: when 1-EP-come-EP-PST 3SG-CONT-EP-be-EP-PST INESS-bed
+        translation: When we arrived, they were still in bed.
+      - text: alugaximem tim dem afodirulem
+        words: [a lu gaxim em, ti m, dem, a fodiru em]
+        legacy: [a.lu.gaxim.emPST, ti.m, dem, a.fodiru.emPST]
+        gloss: 3SG-CONT-think-PST 2SG.POSS-ACC when 3SG-fall.asleep-EP-PST
+        translation: He was thinking of you when he fell asleep.
+      - text: olalem tim xudem afodirulem
+        words: [o la em, ti m, xu dem, a fodiru em]
+        legacy: [o.la.emPST, ti.m, xu.dem, a.fodiru.emPST]
+        gloss: 1-kiss-EP-PST 2SG.POSS-ACC after-when 3SG-fall.asleep-EP-PST
+        translation: I kissed you after they fell asleep.
+        source: phrase 69
+
+  - name: dem is when, at any time
+    text: >-
+      `dem` starts a phrase that says when. It has no time of its own: the
+      tense is on the verbs.
+    cases:
+      - text: esopizau siqenam dem ixe sen
+        words: [es o pizau, si qenam, dem, i e, sen]
+        gloss: PASS-1-burn.the.ego ADV-ash when 2SG-EP-be here
+        translation: I burn to ashes when you are here.
+        source: phrase 212
+
+  - name: dem asks when
+    text: '`dem` also asks the question *when*, for any time.'
+    cases:
+      - text: dem todam axodolir ?
+        words: [dem, toda m, a odo ir]
+        legacy: [dem, toda.m, a.odo.irFUT]
+        gloss: when man.wind-ACC 3SG-EP-leave-EP-FUT
+        translation: When will he go?
+
+  - name: The names of the days
+    text: >-
+      A day is named from where it stands: `iri` or `emi`, before `ya`, the
+      night, or `yo`, the daytime.
+    cases:
+      - before: iri
+        part: ya
+        after: iriya
+        class: noun
+        gloss: CRAS-night
+        translation: tomorrow night
+      - before: iri
+        part: yo
+        after: iriyo
+        class: noun
+        gloss: CRAS-daytime
+        translation: tomorrow
+      - before: emi
+        part: ya
+        after: emiya
+        class: noun
+        gloss: HEST-night
+        translation: the night before
+      - before: emi
+        part: yo
+        after: emiyo
+        class: noun
+        gloss: HEST-daytime
+        translation: yesterday

@@ -1,0 +1,163 @@
+# The rules of the moods: the five suffixes of one vowel, and what they do
+# to a word.
+#
+# The shapes of a rule and of a case are described in joining.yaml.
+
+family: Moods
+rules:
+  - name: The five moods
+    text: >-
+      A mood is a suffix of one vowel. It says the intent of an action, or
+      the style of a thing. `i` is caring, gentle. `o` is pushing, away
+      from. `u` is pulling, towards. `a` is loved, taken inside, to the
+      self. `y` is dancing, moving with no direction.
+    cases:
+      - before: o fen
+        part: i
+        legacy: o.fen.i$
+        after: ofeni
+        class: verb
+        gloss: 1-go-CARE
+        translation: I go gently.
+      - before: o fen
+        part: o
+        legacy: o.fen.o$
+        after: ofeno
+        class: verb
+        gloss: 1-go-PUSH
+        translation: I go away.
+      - before: o fen
+        part: u
+        legacy: o.fen.u$
+        after: ofenu
+        class: verb
+        gloss: 1-go-PULL
+        translation: I go towards.
+      - before: pal
+        part: a
+        legacy: pal.a$
+        after: pala
+        class: noun
+        gloss: butt-LOVED
+        translation: a loved butt
+      - before: fen
+        part: y
+        legacy: fen.y$
+        after: feny
+        class: noun
+        gloss: knee-DANCE
+        translation: a dancing knee
+
+  - name: A mood after a vowel
+    conflict: >-
+      After a consonant, a mood joins with nothing: `ofeni`. A mood that
+      meets the same vowel takes `l`, like any suffix after a vowel. After
+      another vowel, the sources do not agree. The engine and phrase 197
+      join with nothing: `lai`. The third lesson on video says `gai`. The
+      second lesson says `mali` and `lali`, with `l`.
+    cases:
+      - before: la
+        part: i
+        legacy: la.i$
+        after: lai
+        class: verb
+        gloss: kiss-CARE
+        translation: Kiss gently.
+        source: phrase 197
+      - before: ga
+        part: i
+        legacy: ga.i$
+        after: gai
+        class: verb
+        gloss: spirit-CARE
+        translation: the caressing spirit, the rain
+        source: the third lesson on video
+      - before: la
+        part: i
+        legacy: la.i$
+        after: lali
+        class: verb
+        gloss: kiss-EP-CARE
+        translation: Kiss gently.
+        source: the second lesson on video
+      - before: ma
+        part: i
+        legacy: ma.i$
+        after: mali
+        class: verb
+        gloss: hold-EP-CARE
+        translation: to caress
+        source: the second lesson on video
+    open: >-
+      Does a mood join another vowel with nothing, as in `lai`? Or with
+      `l`, like every other suffix, as in `lali`?
+
+  - name: A mood with no subject
+    conflict: >-
+      The rule of the moods on the Roles page says that `i`, `o` and `u`
+      make the word an action. The phrases use such a word alone as an
+      order: `lai` is *Kiss gently* in phrase 197, with the silent suffix
+      of the engine. But an order now takes `y`, and a tense needs a
+      subject.
+    cases:
+      - before: la
+        part: i
+        legacy: la.i$
+        after: lai
+        class: verb
+        gloss: kiss-CARE
+        translation: Kiss gently.
+        source: phrase 197
+      - before: y la
+        part: i
+        legacy: la.i$
+        after: ylai
+        class: verb
+        gloss: IMP-kiss-CARE
+        translation: Kiss gently!
+        source: the rule of the order
+      - before: la
+        part: i
+        legacy: la.i$
+        after: lai
+        class: noun
+        gloss: lips-CARE
+        translation: gentle lips
+        source: by the rule that only a subject makes an action
+    open: >-
+      Is `lai` alone an action, or a noun? Does an order with a mood take
+      `y`, as in `ylai`?
+
+  - name: Roots made from a root and a mood
+    text: >-
+      Many roots were made from a root and a mood. Some lost the vowel of
+      the root: `mai` became `mi`, `mau` became `mu`, `may` became `my`, and
+      `gua`, life loved, became `ga`, *spirit*. And `gu` is `ga` with `u`,
+      the pulled spirit: the two roots make each other. Each is now a root
+      of its own. `ma` already ends with the mood `a`: it is the loved hand,
+      and takes no `a`.
+    cases:
+      - part: mi
+        after: mi
+        class: noun
+        gloss: gentle.hand
+        translation: a gentle hand; as an action, to caress
+        source: Anna
+      - part: mu
+        after: mu
+        class: verb
+        gloss: pull
+        translation: to pull; as an adjective, exhausted
+        source: Anna
+      - part: my
+        after: my
+        class: noun
+        gloss: trace
+        translation: a trace; as an action, to draw
+        source: Anna
+      - part: ga
+        after: ga
+        class: noun
+        gloss: spirit
+        translation: spirit
+        source: the note Loved, January 2022

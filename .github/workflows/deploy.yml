@@ -1,4 +1,5 @@
-# Deploy `website/` to GitHub Pages (static site + optional S3 audio mirror). Lexicon is synced from `src/db.json` first.
+# Deploy the docs site (`docs/dist`) to GitHub Pages. The build checks every
+# rule against the frozen engine in `packages/legacy`.
 
 name: Deploy GitHub Pages
 
@@ -25,36 +26,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Sync lexicon for site
-        run: cp src/db.json website/db.json
+      - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: pnpm
 
-      - name: Generate IPA allowlist
-        working-directory: website
-        run: node scripts/generate-allowlist.mjs
+      - run: pnpm install --frozen-lockfile
 
-      - name: Sync audio from S3
-        working-directory: website
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-          S3_AUDIO_BUCKET: ${{ secrets.S3_AUDIO_BUCKET }}
-        run: |
-          mkdir -p audio
-          if [ -z "${AWS_ACCESS_KEY_ID:-}" ] || [ -z "${AWS_SECRET_ACCESS_KEY:-}" ] \
-            || [ -z "${AWS_DEFAULT_REGION:-}" ] || [ -z "${S3_AUDIO_BUCKET:-}" ]; then
-            echo "Skipping aws s3 sync (optional: set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, S3_AUDIO_BUCKET)."
-            exit 0
-          fi
-          aws s3 sync "s3://${S3_AUDIO_BUCKET}/audio/" ./audio/
+      - name: Build the docs
+        run: pnpm run docs
 
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: website
+          path: docs/dist
 
       - id: deploy
         uses: actions/deploy-pages@v4

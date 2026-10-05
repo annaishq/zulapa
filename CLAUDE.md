@@ -8,53 +8,48 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Zulapa is a constructed language (conlang) by Anna Ishq. The language is *authored as TypeScript code* in `src/`, compiled into a lexicon database (`src/db.json`), and browsed via a static React website in `website/`. Code is MIT; the language itself is private.
+Zulapa is a constructed language (conlang) by Anna Ishq. Code is MIT; the language itself is private.
+
+The language is under review. The rules are being settled one page at a time on a docs site, and a new compiler will follow them. The first compiler and website are frozen.
+
+This is a pnpm workspace:
+
+- **`docs/`** — the review site, built with [minidoc](https://minidoc.dev) in the style of `../muse` and `../editor`. Deployed to GitHub Pages.
+- **`packages/zulapa/`** — the new compiler. For now it holds only the rules, as YAML fixtures under `design/`.
+- **`packages/legacy/`** — the first compiler (`src/`), its website (`website/`), and the older notes and texts. Frozen: do not change the language or the engine there.
 
 ## Commands
 
 ```bash
-npm run makedb            # Compile the language sources → src/db.json + llms/*.md
-npm run makedb:watch      # Same, re-running on changes (requires fswatch)
-npm run sync-website-db   # cp src/db.json website/db.json (website reads its own copy)
-
-npm test                  # Jest, all tests (100% coverage threshold enforced)
-npm run test:watch        # Watch mode, coverage disabled
-
-# Single test file (disable coverage or the 100% global threshold fails):
-npx jest -c setup/jest.js --coverage false src/contest/words/prefix/verb.test.ts
-
-npm run roots             # CLI utilities over the lexicon
-npm run find
-npm run stats
+pnpm install
+pnpm dev          # docs dev server: watch, rebuild, live reload
+pnpm run docs     # build the site into docs/dist (`pnpm docs` is a pnpm built-in, use `run`)
+pnpm makedb       # legacy: compile the language → packages/legacy/src/db.json + llms/*.md
 ```
 
-The website has no build step — serve `website/` statically (e.g. `python3 -m http.server` from `website/`). React + Babel standalone are loaded from a CDN and `.jsx` files are transpiled in the browser. Append `?tiny=1` to load the small `db-tiny.json` instead of the full lexicon.
+## The review (`docs/`, `packages/zulapa/design/`)
 
-## Architecture
+- A page is a markdown file under `docs/content/pages/`, listed in `docs/content/config.yaml`.
+- A `rules` fence names a file of `packages/zulapa/design/` (without `.yaml`). `docs/src/rules.mjs` draws it.
+- A rule is a `name`, a `text` and `cases`. A case has one of three shapes, told apart by its keys (the header of each fixture file describes them):
+  - a join: `before` (the word so far, as morphemes with spaces; left out for a morpheme alone), `part`, and `after` with its `class` and `gloss`;
+  - a sound: `word` and `ipa`;
+  - a phrase: `text`, `words` (the morphemes of each word), `gloss` (one per word) and `translation`.
+- `legacy` gives the chain for the frozen engine, with ids and dots, when an id is not the name. `source` says where a case comes from.
+- A gloss follows the Leipzig Glossing Rules (see `docs/content/pages/GLOSSING.md`): hyphens between morphemes, periods inside one, `EP` for a joining sound. Every label in capitals must be listed in `packages/zulapa/design/glosses.yaml`; the build fails otherwise. `docs/src/gloss.mjs` maps the glosses of the frozen engine to these labels.
+- A rule with a `conflict` is not settled; `open` is its question. A settled conflict becomes a plain rule.
+- The build runs every case through the frozen engine (`packages/legacy/src/say.ts`, called from `docs/src/legacy.mjs`) and marks the cases where its word, class or gloss differ. The states of `before` and `part` shown on the page are read from the frozen engine.
+- Do not add a case whose morpheme has `y` as its only vowel followed by a suffix other than `y` (such as `my` + `m`), or by a prefix (such as the order `y` + `ne`): the frozen engine runs out of memory while it builds its error. Give such a case a `legacy` chain without the `y` (`ne.agu` for `ynexagu`). `y` before a root (`y.fa`) only fails.
 
-### Language compilation pipeline (`src/`)
+Write the pages and the fixtures in plain English: common words, short sentences, one claim per sentence. The language is Anna's: state what the sources say and ask, do not decide a conflict.
 
-- **`src/conlib/`** — the generic conlang engine: entry types (`types.ts`), morpheme joining (`joinMorphemes.ts`), prefix/suffix machinery, phonology/orthography (`writing.ts`), and compilation (`compile.ts`, which turns the in-memory entry graph into the JSON db and also exports markdown summaries to `llms/`).
-- **`src/conlang/`** — the Zulapa language content itself: roots (`roots/`), vocabulary grouped by topic (`concepts/`), prefixes/suffixes, conjugation, poems, songs. Everything is re-exported through `lang.ts`; entries register themselves on import (imports have side effects — "force compilation" imports are intentional).
-- **`src/conlang/index.ts`** is the `makedb` entry point: compiles all entries, writes `src/db.json`, and exports LLM-readable markdown to `llms/`.
-- A husky pre-commit hook runs `makedb` and stages `src/db.json`, so the db is kept in sync with the sources in commits.
+## Legacy (`packages/legacy/`)
 
-### Tests (`src/contest/`)
+Run its scripts from that directory (`pnpm makedb`, `pnpm test`, `pnpm say`, `pnpm find`).
 
-Tests live in `src/contest/` (not next to sources) and use a custom assertion DSL defined in `src/test.ts`, imported via the `test` module alias (mapped in both `tsconfig.json` paths and `setup/jest.js` moduleNameMapper — keep these in sync). Coverage thresholds are 100% across the board.
-
-### Website (`website/`)
-
-Static React app (no bundler): `index.html` loads `data.js` (fetches and reshapes `db.json` — its header comment documents the db schema: `word-X`, `alt-X`, `phrase-N`, `caption-N`, `card-X` entries), `primitives.jsx`, `app.jsx`, and tweak panels. `website/db.json` is a *copy* of `src/db.json` — synced manually via `npm run sync-website-db` or automatically in CI.
-
-### Tiered IPA audio pipeline
-
-Documented in `website/docs/audio-pipeline.md` — read it before touching audio code. Key invariants:
-
-- The canonical key is the exact `phon` string from db.json **including slashes**; the cache filename is `base64url(SHA-256(voiceId + "\0" + phon))` and must be computed identically in `website/scripts/audio-key.mjs` (build), `website/audio-resolve.js` (browser), and `website/lambda/ipa-synthesize/` (Lambda).
-- Client resolution order: same-origin `/audio/{key}.mp3` (GitHub Pages) → public S3 URL → `POST` to the Lambda (Polly synthesis), gated by `audio-allowlist.json` (regenerate with `node scripts/generate-allowlist.mjs` from `website/` after the db changes).
-- Audio config (S3 base URL, Lambda URL, voice) is set on `window.__ZULAPA_AUDIO__` in `index.html`.
-
-### Deployment
-
-`.github/workflows/deploy.yml` deploys `website/` to GitHub Pages on push to master: copies `src/db.json` into the site, regenerates the allowlist, and optionally mirrors cached MP3s from S3 into `./audio/`.
+- **`src/conlib/`** — the generic engine: entry types, morpheme joining (`joinMorphemes.ts`), prefix/suffix machinery, phonology/orthography (`writing.ts`), compilation (`compile.ts`).
+- **`src/conlang/`** — the language content: roots, vocabulary by topic (`concepts/`), prefixes/suffixes, poems, songs. Entries register themselves on import.
+- **`llms/*.md`** — the compiled grammar cards, vocabulary and phrases, readable in one pass.
+- **`website/`** — the old static React site, no longer deployed. Its audio pipeline is documented in `website/docs/audio-pipeline.md`.
+- The jest suite has stale expectations and does not pass.
+- A husky pre-commit hook (root `package.json`) runs `makedb` and stages `packages/legacy/src/db.json`.

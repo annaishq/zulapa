@@ -1,0 +1,165 @@
+# The rules of the sounds: how a written word is said.
+#
+# A case is a `word`, its `ipa`, the sounds between two slashes, and a
+# `translation`. `legacy` is the chain for the frozen engine, with ids and
+# dots, when the word is built from several morphemes.
+
+family: Sounds
+rules:
+  - name: One letter, one sound
+    text: >-
+      A letter is always said the same way. Most letters have the sound that
+      the International Phonetic Alphabet gives them.
+    cases:
+      - word: fa
+        translation: eyes
+        ipa: fa
+      - word: agu
+        translation: ear
+        ipa: agu
+      - word: zu
+        translation: heart
+        ipa: zu
+      - word: lipa
+        translation: song
+        ipa: lipa
+
+  - name: e and o are open
+    text: The letter `e` is the open `/ɛ/`, and the letter `o` is the open `/ɔ/`.
+    cases:
+      - word: nefe
+        translation: naked
+        ipa: nɛfɛ
+      - word: noa
+        translation: skin
+        ipa: nɔa
+
+  - name: sh and th
+    text: >-
+      Two sounds are written with two letters: `sh` is `/ʂ/`, and `th` is `/θ/`.
+      The tip of the tongue is raised and pulled back for `/ʂ/`, and the lips
+      are not rounded. It is not `/ʃ/`, the sound that the Phonology card
+      gives it.
+    cases:
+      - word: sho
+        translation: we
+        ipa: ʂɔ
+        source: Anna
+      - word: dutha
+        translation: face
+        ipa: duθa
+
+  - name: j
+    text: >-
+      The letter `j` is `/ʐ/`, the sound of `sh` with voice. It is not `/ʒ/`,
+      the sound that the Phonology card gives it.
+    cases:
+      - word: joda
+        translation: child
+        ipa: ʐɔda
+        source: Anna
+      - word: baj
+        translation: lower limb
+        ipa: baʐ
+        source: Anna
+
+  - name: y
+    text: >-
+      The letter `y` is `/j/`. Before a vowel it is a consonant. After a
+      consonant it is a vowel, and may end a word. At the start of a word,
+      before a consonant, it is said `/ji/`: the glide that begins an order.
+    cases:
+      - word: ya
+        translation: night
+        ipa: ja
+      - word: meny
+        translation: dance
+        ipa: mɛnj
+      - word: my
+        translation: trace
+        ipa: mj
+      - word: yfa
+        translation: Look!
+        ipa: jifa
+        source: Anna
+      - word: yagu
+        translation: Listen!
+        ipa: jagu
+        source: Anna
+
+  - name: x and q
+    text: >-
+      The letter `x` is the fricative `/x/`, and the letter `q` is the plosive
+      `/q/`, further back than `/k/`.
+    cases:
+      - word: nux
+        translation: hubris
+        ipa: nux
+      - word: qa
+        translation: four, singularity
+        ipa: qa
+
+  - name: w
+    text: >-
+      The letter `w` is `/w/`, with rounded lips. It is not `/ʋ/`, the sound
+      that the table of the Phonology card gives it.
+    cases:
+      - word: wi
+        translation: creativity
+        ipa: wi
+        source: Anna
+
+  - name: The stress
+    text: >-
+      The stress falls on the syllable before the last of the root. A root
+      of one syllable takes the stress itself. Prefixes and suffixes do not
+      count, and do not move it. Two vowels together are two syllables. In
+      a word of two roots, the first root takes the stress, and the second a
+      lighter one.
+    cases:
+      - word: lipa
+        translation: song
+        ipa: ˈlipa
+        source: Anna
+      - word: noa
+        translation: skin
+        ipa: ˈnɔa
+        source: Anna
+      - word: aguwu
+        translation: They give.
+        legacy: a.guwu
+        ipa: aˈguwu
+        source: the Phonology card
+      - word: afoliri
+        translation: They will whip, tomorrow.
+        legacy: a.fo.iri
+        ipa: aˈfɔliri
+        source: the Phonology card
+      - word: esoluzu
+        translation: I am being loved.
+        legacy: es.o.lu.zu
+        ipa: ɛsɔluˈzu
+        source: Anna
+      - word: dothtana
+        translation: bean-script
+        legacy: doth.tana
+        ipa: ˈdɔθˌtana
+        source: Anna
+
+  - name: No h
+    text: >-
+      Zulapa has no letter `h`. Some words were written with an `h`:
+      `hapan`, `hajo`, `gahilus`. That `h` was an old spelling of `x`, and
+      the words are now written `xapan`, `xajo`, `gaxilus`. The engine
+      gives the `h` no sound.
+    cases:
+      - word: xapan
+        translation: goat
+        legacy: hapan
+        ipa: xapan
+        source: Anna
+      - word: oxajo
+        translation: I take.
+        legacy: o.hajo
+        ipa: ɔxaʐɔ
+        source: Anna

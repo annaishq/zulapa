@@ -1,0 +1,243 @@
+# The rules of the roles: which class a word has, and what gives it.
+#
+# The shape of a rule and of a case is described in joining.yaml. A case
+# with no `before` is a morpheme alone.
+
+family: Roles
+rules:
+  - name: A root alone is a thing
+    text: >-
+      A root with nothing before it is a noun. Its gloss is its reading as a
+      noun.
+    cases:
+      - part: agu
+        after: agu
+        class: noun
+        gloss: ear
+        translation: ear
+      - part: fa
+        after: fa
+        class: noun
+        gloss: eyes
+        translation: eyes
+      - part: la
+        after: la
+        class: noun
+        gloss: lips
+        translation: lips
+
+  - name: A subject makes an action
+    text: >-
+      A subject before a root makes a verb. The gloss of the root is its
+      reading as a verb.
+    cases:
+      - before: o
+        part: fa
+        after: ofa
+        class: verb
+        gloss: 1-see
+        translation: I see.
+      - before: a
+        part: lipa
+        after: alipa
+        class: verb
+        gloss: 3SG-sing
+        translation: They sing, one person.
+
+  - name: The passive makes an action
+    text: >-
+      `es` before a subject makes a verb. The subject is the one that the
+      action is done to.
+    cases:
+      - before: es o
+        part: zu
+        after: esozu
+        class: verb
+        gloss: PASS-1-love
+        translation: I am loved.
+        source: phrase 95
+
+  - name: le makes the modifier of a thing
+    text: >-
+      `le` before a root makes an adjective. The gloss of the root is its
+      reading as an adjective.
+    cases:
+      - before: le
+        part: awi
+        after: lexawi
+        class: adj
+        gloss: ADJ-EP-beautiful
+        translation: beautiful
+        source: the Grammar card, and phrase 96
+
+  - name: si makes the modifier of an action
+    text: >-
+      `si` before a root makes an adverb. The gloss of the root is its
+      reading as an adverb.
+    cases:
+      - before: si
+        part: zu
+        after: sizu
+        class: adv
+        gloss: ADV-lovingly
+        translation: lovingly
+        source: the Grammar card
+
+  - name: A modifier after a root keeps its role
+    text: >-
+      A suffix that modifies, such as `uki`, does not change the class of
+      the word.
+    cases:
+      - before: mun
+        part: uki
+        after: munuki
+        class: noun
+        gloss: breast-long
+        translation: a long breast
+      - before: ji uki
+        part: m
+        after: jilukim
+        class: noun
+        gloss: hair-EP-long-ACC
+        translation: long hair, as an object
+        source: phrase 330
+
+  - name: The infinite subject makes an action that can be a thing
+    text: >-
+      `u` before a root makes a verb with no one who acts. With a case such
+      as `m`, the word stands where a noun stands.
+    cases:
+      - before: u
+        part: lapa
+        after: ulapa
+        class: verb
+        gloss: INF-talk
+        translation: to talk
+      - before: u lapa
+        part: m
+        after: ulapam
+        class: noun
+        gloss: INF-talk-ACC
+        translation: talking, as an object
+        source: phrase 358
+
+  - name: An order
+    text: >-
+      The prefix `y` makes an order. A root alone is not an order: `fa`
+      alone is *eyes*. The engine marked an order with a silent suffix that
+      the author writes, and that is not said.
+    cases:
+      - part: fa
+        after: fa
+        class: noun
+        gloss: eyes
+        translation: eyes
+      - before: y
+        part: fa
+        after: yfa
+        class: verb
+        gloss: IMP-see
+        translation: Look!
+        source: Anna
+      - before: y
+        part: agu
+        after: yagu
+        class: verb
+        gloss: IMP-listen
+        translation: Listen!
+        source: Anna
+
+  - name: A tense needs a subject
+    text: >-
+      A tense follows an action, and only a subject makes an action. A root
+      with no subject takes no tense: `falem` does not exist. *I saw* is
+      `ofalem`.
+    cases:
+      - before: o fa
+        part: em
+        legacy: o.fa.emPST
+        after: ofalem
+        class: verb
+        gloss: 1-see-EP-PST
+        translation: I saw.
+        source: phrase 67
+
+  - name: The moods
+    text: >-
+      As suffixes, the moods are of two kinds. `i`, `o` and `u` are adverbs:
+      they say how an action is done, and the word is an action. `a` and `y`
+      are adjectives: they say what a thing is like, and the word stays a
+      noun.
+    cases:
+      - before: ma
+        part: i
+        legacy: ma.i$
+        after: mai
+        class: verb
+        gloss: hold-CARE
+        translation: Hold gently.
+      - before: ma
+        part: o
+        legacy: ma.o$
+        after: mao
+        class: verb
+        gloss: hold-PUSH
+        translation: Hold, pushing away.
+      - before: dutha
+        part: y
+        legacy: dutha.y$
+        after: duthay
+        class: noun
+        gloss: face-DANCE
+        translation: a dancing face
+        source: Anna
+
+  - name: A prefix with no subject
+    text: >-
+      With no subject, a word that starts with `ne` or `lu` stays a noun:
+      `nexagu` is *not an ear*, and `lulipa` is *singing*. An order takes
+      `y` before the prefix: `ynexagu` is *Do not listen*. Phrase 13 says
+      *do not be sad* with `nefalo`; as an order, it is `ynefalo`.
+    cases:
+      - before: ne
+        part: agu
+        after: nexagu
+        class: noun
+        gloss: NEG-EP-ear
+        translation: not an ear
+        source: Anna
+      - before: y ne
+        part: agu
+        legacy: ne.agu
+        after: ynexagu
+        class: verb
+        gloss: IMP-NEG-EP-listen
+        translation: Do not listen.
+        source: Anna
+      - before: lu
+        part: lipa
+        after: lulipa
+        class: noun
+        gloss: CONT-song
+        translation: singing
+        source: phrase 356
+
+  - name: A root with several senses
+    text: >-
+      Some roots hold several senses: `ish` is *leaf, acceptance*, and `gu`
+      is *darkness, empathy, life*. They are one meaning, always the same,
+      and not a choice between them. The gloss joins the senses with
+      periods, as one label.
+    cases:
+      - part: ish
+        after: ish
+        class: noun
+        gloss: leaf.acceptance
+        translation: leaf, acceptance
+        source: Anna
+      - part: gu
+        after: gu
+        class: noun
+        gloss: darkness.empathy.life
+        translation: darkness, empathy, life
+        source: Anna

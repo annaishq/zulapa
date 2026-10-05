@@ -1,0 +1,206 @@
+# The labels of the glosses. `of` is the morphemes that a label glosses.
+# `from` says where a label comes from: `Leipzig` is the list of the Leipzig
+# Glossing Rules, `common` is a label in wide use that this list does not
+# have, and `Zulapa` is a category of the language, named here.
+
+labels:
+  - label: "1"
+    meaning: first person, with no number. Someone, often the speaker
+    of: o
+    from: Leipzig
+  - label: "2"
+    meaning: second person
+    of: i, shi
+    from: Leipzig
+  - label: "3"
+    meaning: third person
+    of: a, sha
+    from: Leipzig
+  - label: SG
+    meaning: singular
+    of: i, a, pi, mipi
+    from: Leipzig
+  - label: DU
+    meaning: dual
+    of: de
+    from: Leipzig
+  - label: PL
+    meaning: plural
+    of: sho, shi, sha, msho, tshi, sasha
+    from: Leipzig
+  - label: INDF
+    meaning: indefinite
+    of: pe
+    from: Leipzig
+  - label: INF
+    meaning: the infinite subject, which also serves as the infinitive
+    of: u
+    from: Leipzig
+  - label: POSS
+    meaning: possessive
+    of: mo, mipi, ti, sa, msho, tshi, sasha
+    from: Leipzig
+  - label: F
+    meaning: feminine
+    of: nu
+    from: Leipzig
+  - label: M
+    meaning: masculine
+    of: to
+    from: Leipzig
+  - label: IMP
+    meaning: imperative, an order
+    of: y, as a prefix
+    from: Leipzig
+  - label: ACC
+    meaning: accusative
+    of: m
+    from: Leipzig
+  - label: ERG
+    meaning: ergative
+    of: fu
+    from: Leipzig
+  - label: DAT
+    meaning: dative
+    of: ni
+    from: Leipzig
+  - label: GEN
+    meaning: genitive
+    of: wu
+    from: Leipzig
+  - label: TOP
+    meaning: topic
+    of: wa
+    from: Leipzig
+  - label: ADJ
+    meaning: adjective, the modifier of a thing
+    of: le
+    from: Leipzig
+  - label: ADV
+    meaning: adverb, the modifier of an action
+    of: si
+    from: Leipzig
+  - label: PASS
+    meaning: passive
+    of: es
+    from: Leipzig
+  - label: NMLZ
+    meaning: nominalizer
+    of: es, as a suffix
+    from: Leipzig
+  - label: NEG
+    meaning: negation
+    of: ne
+    from: Leipzig
+  - label: PST
+    meaning: past
+    of: em
+    from: Leipzig
+  - label: FUT
+    meaning: future
+    of: ir
+    from: Leipzig
+  - label: HOD
+    meaning: hodiernal, of the same day
+    of: emo, iro
+    from: common
+  - label: HEST
+    meaning: hesternal, the past of the day before
+    of: emi
+    from: common
+  - label: PROX
+    meaning: near in time
+    of: ema, ira
+    from: Leipzig
+  - label: DIST
+    meaning: far in time
+    of: emu, iru
+    from: Leipzig
+  - label: EVNT
+    meaning: eventual, maybe. A doubt in the past, and what may come in the future
+    of: eme, ire
+    from: Zulapa
+  - label: ETERN
+    meaning: always
+    of: lau
+    from: Zulapa
+  - label: NEVER
+    meaning: never
+    of: nei
+    from: Zulapa
+  - label: NOW
+    meaning: now
+    of: lei
+    from: Zulapa
+  - label: REMEMBER
+    meaning: of the past, and felt now as if it were happening
+    of: lue
+    from: Zulapa
+  - label: DESIRE
+    meaning: desired so much that it is felt real, and now
+    of: lui
+    from: Zulapa
+  - label: INESS
+    meaning: inessive, inside
+    of: ro
+    from: common
+  - label: CRAS
+    meaning: crastinal, the future of tomorrow
+    of: iri
+    from: common
+  - label: CONT
+    meaning: continuous
+    of: lu
+    from: common
+  - label: SUB
+    meaning: subordinate
+    of: n
+    from: common
+  - label: DIM
+    meaning: diminutive
+    of: lil
+    from: common
+  - label: EP
+    meaning: epenthesis, a joining sound with no meaning
+    of: x, l, n, a repeated vowel
+    from: common
+  - label: MASTER
+    meaning: the one who takes care, the Dominant
+    of: kei
+    from: Zulapa
+  - label: TINY
+    meaning: the one who is taken care of
+    of: yi
+    from: Zulapa
+  - label: WET
+    meaning: surrendered, submissive
+    of: lo
+    from: Zulapa
+  - label: SINGULAR
+    meaning: every one, singularity
+    of: qa
+    from: Zulapa
+  - label: CARE
+    meaning: the mood of caring, gentle
+    of: i, as a suffix
+    from: Zulapa
+  - label: PUSH
+    meaning: the mood of pushing, away from
+    of: o, as a suffix
+    from: Zulapa
+  - label: PULL
+    meaning: the mood of pulling, towards
+    of: u, as a suffix
+    from: Zulapa
+  - label: LOVED
+    meaning: the mood of being loved, taken to the self
+    of: a, as a suffix
+    from: Zulapa
+  - label: DANCE
+    meaning: the mood of dancing
+    of: y, as a suffix
+    from: Zulapa
+  - label: NB
+    meaning: non-binary
+    of: wi
+    from: Zulapa
