@@ -1,0 +1,145 @@
+var:
+  output: ../dist
+  favicon: >-
+    data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32
+    32'%3E%3Ctext x='16' y='24' text-anchor='middle'
+    font-family='Georgia,Times,serif' font-weight='bold' font-size='28'
+    fill='%23000'%3Ez%3C/text%3E%3C/svg%3E
+  indexCurrent: ""
+  joiningCurrent: ""
+  subjectsCurrent: ""
+  moodsCurrent: ""
+  moodsToc: ""
+  glossingCurrent: ""
+  soundsCurrent: ""
+  soundsToc: ""
+  rolesCurrent: ""
+  rolesToc: ""
+  phrasesCurrent: ""
+  phrasesToc: ""
+  timeCurrent: ""
+  timeToc: ""
+  indexToc: ""
+  joiningToc: ""
+  subjectsToc: ""
+  glossingToc: ""
+  contents: |-
+    <aside class="contents" aria-label="Contents">
+      <a class="brand" href="./index.html">Zulapa</a>
+      <p class="contents__label">Contents</p>
+      <ol class="contents__pages">
+        <li><a href="./index.html"{{indexCurrent}}>Zulapa</a>{{indexToc}}</li>
+        <li><a href="./glossing.html"{{glossingCurrent}}>Glossing</a>{{glossingToc}}</li>
+        <li><a href="./sounds.html"{{soundsCurrent}}>Sounds</a>{{soundsToc}}</li>
+        <li><a href="./joining.html"{{joiningCurrent}}>Joining</a>{{joiningToc}}</li>
+        <li><a href="./roles.html"{{rolesCurrent}}>Roles</a>{{rolesToc}}</li>
+        <li><a href="./subjects.html"{{subjectsCurrent}}>Subjects</a>{{subjectsToc}}</li>
+        <li><a href="./moods.html"{{moodsCurrent}}>Moods</a>{{moodsToc}}</li>
+        <li><a href="./time.html"{{timeCurrent}}>Time</a>{{timeToc}}</li>
+        <li><a href="./phrases.html"{{phrasesCurrent}}>Phrases</a>{{phrasesToc}}</li>
+      </ol>
+      <footer class="contents__colophon">
+        <span>by Anna Ishq</span>
+        <span class="contents__credits">Set in IBM Plex. Built with
+          <a href="https://minidoc.dev">minidoc</a>.
+        </span>
+      </footer>
+    </aside>
+  shell: |-
+    <!doctype html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>{{title}}</title>
+      <link rel="icon" href="{{favicon}}">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+      <link rel="stylesheet" href="./style.css">
+    </head>
+    <body>
+      {{contents}}
+      <main class="page">
+        <p class="running-head"><span>Zulapa</span><span>{{running}}</span></p>
+        <article class="prose" id="content">{{pageBody}}</article>
+        <p class="tailpiece" aria-hidden="true"></p>
+      </main>
+    </body>
+    </html>
+  port: 62699
+build:
+  - output: "{{output}}/index.html"
+    input: "{{shell}}"
+    var:
+      title: Zulapa
+      running: The review
+      pageBody: { file: pages/ZULAPA.md, transform: docsMd }
+      indexToc: { file: pages/ZULAPA.md, transform: docsToc }
+      indexCurrent: ' aria-current="page"'
+  - output: "{{output}}/glossing.html"
+    input: "{{shell}}"
+    var:
+      title: Glossing — Zulapa
+      running: Glossing
+      pageBody: { file: pages/GLOSSING.md, transform: docsMd }
+      glossingToc: { file: pages/GLOSSING.md, transform: docsToc }
+      glossingCurrent: ' aria-current="page"'
+  - output: "{{output}}/joining.html"
+    input: "{{shell}}"
+    var:
+      title: Joining — Zulapa
+      running: Joining
+      pageBody: { file: pages/JOINING.md, transform: docsMd }
+      joiningToc: { file: pages/JOINING.md, transform: docsToc }
+      joiningCurrent: ' aria-current="page"'
+  - output: "{{output}}/subjects.html"
+    input: "{{shell}}"
+    var:
+      title: Subjects — Zulapa
+      running: Subjects
+      pageBody: { file: pages/SUBJECTS.md, transform: docsMd }
+      subjectsToc: { file: pages/SUBJECTS.md, transform: docsToc }
+      subjectsCurrent: ' aria-current="page"'
+  - output: "{{output}}/moods.html"
+    input: "{{shell}}"
+    var:
+      title: Moods — Zulapa
+      running: Moods
+      pageBody: { file: pages/MOODS.md, transform: docsMd }
+      moodsToc: { file: pages/MOODS.md, transform: docsToc }
+      moodsCurrent: ' aria-current="page"'
+  - output: "{{output}}/sounds.html"
+    input: "{{shell}}"
+    var:
+      title: Sounds — Zulapa
+      running: Sounds
+      pageBody: { file: pages/SOUNDS.md, transform: docsMd }
+      soundsToc: { file: pages/SOUNDS.md, transform: docsToc }
+      soundsCurrent: ' aria-current="page"'
+  - output: "{{output}}/roles.html"
+    input: "{{shell}}"
+    var:
+      title: Roles — Zulapa
+      running: Roles
+      pageBody: { file: pages/ROLES.md, transform: docsMd }
+      rolesToc: { file: pages/ROLES.md, transform: docsToc }
+      rolesCurrent: ' aria-current="page"'
+  - output: "{{output}}/time.html"
+    input: "{{shell}}"
+    var:
+      title: Time — Zulapa
+      running: Time
+      pageBody: { file: pages/TIME.md, transform: docsMd }
+      timeToc: { file: pages/TIME.md, transform: docsToc }
+      timeCurrent: ' aria-current="page"'
+  - output: "{{output}}/phrases.html"
+    input: "{{shell}}"
+    var:
+      title: Phrases — Zulapa
+      running: Phrases
+      pageBody: { file: pages/PHRASES.md, transform: docsMd }
+      phrasesToc: { file: pages/PHRASES.md, transform: docsToc }
+      phrasesCurrent: ' aria-current="page"'
+  - output: "{{output}}/style.css"
+    input: { copy: ../assets/style.css }

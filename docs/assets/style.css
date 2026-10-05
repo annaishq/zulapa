@@ -1,0 +1,410 @@
+/* A plain edition: black on white, one sans set for the screen, and rules
+   that do the work colour would. One contrast colour, a slate blue, is
+   kept for the number of a rule and the line under the running head. Red
+   marks what is not settled: a conflict, its number and its cases. The one ornament is a thin rule
+   beside a thick one. Every corner is square. The contents stand in a
+   column on the left and never scroll. */
+
+:root {
+  color-scheme: light;
+  --white: #ffffff;
+  --black: #000000;
+  --contrast: #7c98b2;
+  --grey: #5c5c5c;
+  --grey-light: #cfcfcf;
+  --grey-faint: #f5f5f5;
+  --ipa: #747474;
+  --red: #c2574c;
+  --red-faint: #fbe9e7;
+  --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  --contents: 17rem;
+  --measure: 46rem;
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--white); scroll-padding-top: 2rem; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 1.0625rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--black);
+  background: var(--white);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The ornament: a thin rule over a thick one. */
+
+.brand::after,
+.prose h1::after {
+  content: "";
+  display: block;
+  border-top: 1px solid var(--black);
+  border-bottom: 4px solid var(--black);
+  height: 8px;
+}
+
+/* The small label: one voice for every caption, tag and running line. */
+
+.contents__label,
+.running-head,
+.prose th {
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+/* The contents: a white column closed by one rule. */
+
+.contents {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--contents);
+  padding: 2.4rem 1.6rem 1.6rem 2rem;
+  background: var(--white);
+  color: var(--black);
+  border-right: 1px solid var(--black);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  display: block;
+  margin: 0 0 3rem;
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--black);
+  text-decoration: none;
+}
+
+.brand__edition {
+  font-size: 0.4em;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--grey);
+}
+
+.brand::after { width: 3rem; margin-top: 0.9rem; }
+
+.contents__label { margin: 0 0 0.8rem; color: var(--grey); }
+
+.contents ol { margin: 0; padding: 0; list-style: none; }
+
+.contents__pages > li {
+  margin: 0;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--grey-light);
+}
+
+.contents__pages > li:last-child { border-bottom: 1px solid var(--grey-light); }
+
+.contents__pages > li > a { font-size: 1.3rem; }
+
+.contents a { color: var(--black); text-decoration: none; }
+
+.contents a:hover { text-decoration: underline; text-underline-offset: 0.18em; }
+
+.contents__pages > li > a[aria-current="page"] { font-weight: 700; }
+
+.contents__sections {
+  margin: 0.5rem 0 0.3rem !important;
+  counter-reset: section;
+}
+
+.contents__sections > li {
+  margin: 0.3rem 0;
+  font-size: 1rem;
+  counter-increment: section;
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  column-gap: 0.4rem;
+}
+
+.contents__sections > li::before {
+  content: counter(section);
+  font-size: 0.85rem;
+  padding-top: 0.1rem;
+  color: var(--grey);
+}
+
+.contents__sections > li > a { grid-column: 2; }
+
+.contents__colophon {
+  margin: auto 0 0;
+  padding-top: 2rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+  min-width: 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--grey);
+}
+
+.contents__colophon a { text-decoration: underline; text-underline-offset: 0.18em; }
+
+/* The page: everything hangs from the left edge. */
+
+.page {
+  margin-left: var(--contents);
+  padding: 2.4rem 3rem 6rem 4rem;
+}
+
+.running-head {
+  display: flex;
+  justify-content: space-between;
+  max-width: var(--measure);
+  margin: 0 0 4rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--contrast);
+}
+
+.prose { max-width: var(--measure); }
+
+.prose h1 {
+  margin: 0 0 3rem;
+  font-size: 4rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.prose h1::after { width: 6rem; margin-top: 1.5rem; }
+
+.prose h2 {
+  margin: 4.5rem 0 1.4rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--black);
+  font-size: 1.9rem;
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.prose h3 {
+  margin: 2.2rem 0 0.6rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.prose .heading-anchor {
+  margin-left: 0.5em;
+  font-size: 0.6em;
+  vertical-align: middle;
+  color: transparent;
+  text-decoration: none;
+}
+
+.prose h2:hover .heading-anchor,
+.prose h3:hover .heading-anchor { color: var(--grey); }
+
+.prose p, .prose ul, .prose ol { margin: 0 0 1.1rem; }
+
+.prose ul { padding-left: 1.5em; list-style: none; }
+
+.prose ul > li::before {
+  content: "";
+  display: inline-block;
+  width: 0.7em;
+  height: 1px;
+  margin: 0 0.8em 0 -1.5em;
+  vertical-align: 0.3em;
+  background: var(--black);
+}
+
+.prose ol { padding-left: 1.6em; }
+
+.prose li { margin: 0.3rem 0; }
+
+.prose a {
+  color: var(--black);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.prose a:hover { text-decoration-thickness: 2px; }
+
+.prose strong { font-weight: 700; }
+
+/* Code in a line of text has the size of the text. A smaller size does not
+   stay on the baseline of the text in every line. */
+
+.prose code {
+  font-family: var(--mono);
+  font-size: 1em;
+  padding: 1px;
+  border-bottom: 1px solid var(--grey-light);
+}
+
+.prose pre {
+  margin: 0 0 1.4rem;
+  padding: 1rem 1.2rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border-left: 1px solid var(--black);
+  background: var(--grey-faint);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.ipa { color: var(--ipa); }
+.ipa::before, .ipa::after { content: "/"; color: var(--grey-light); }
+
+.prose pre code { padding: 0; border-bottom: none; font-size: inherit; }
+
+.table-wrap { overflow-x: auto; margin: 0 0 1.4rem; }
+
+.prose table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 1rem;
+  border-top: 1px solid var(--black);
+  border-bottom: 1px solid var(--black);
+}
+
+.prose th, .prose td {
+  text-align: left;
+  padding: 0.45rem 0.8rem 0.45rem 0;
+  vertical-align: top;
+}
+
+.prose th { border-bottom: 1px solid var(--black); }
+
+.prose tr + tr td { border-top: 1px solid var(--grey-light); }
+
+.tailpiece {
+  max-width: var(--measure);
+  height: 0;
+  margin: 5rem 0 0;
+  border-bottom: 2px solid var(--contrast);
+}
+
+/* The rule: a number, a name and a sentence or two, then its cases. A
+   conflict has its number in red, a case for each side that takes part in
+   it, and the question that is open. A case that the frozen engine builds
+   otherwise has a heavy bar, and the word of the engine in its caption. */
+
+.prose { counter-reset: rule; }
+
+.rule {
+  margin: 0;
+  padding: 0.9rem 0 1rem;
+  counter-increment: rule;
+  border-top: 1px solid var(--grey-light);
+}
+
+.prose .rule__head {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: 0.6rem;
+  margin: 0 0 0.3rem;
+}
+
+.rule__head::before {
+  content: counter(rule, decimal-leading-zero);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--contrast);
+}
+
+.rule--conflict { border-top: 2px solid var(--red); }
+
+.rule--conflict .rule__head::before { color: var(--red); }
+
+.rule__name { font-weight: 700; }
+
+.rule__tag { font-size: 0.8rem; color: var(--grey); white-space: nowrap; }
+
+.rule--conflict .rule__tag { color: var(--red); }
+
+.prose .rule__text, .prose .rule__rework, .rule__examples { margin: 0 0 0.5rem 3.2rem; }
+
+.rule__examples { display: grid; gap: 0.5rem; }
+
+/* The case: three states side by side. The word before, the part that
+   joins it, and the word after. Each state is a word, its class and its
+   gloss. The state after stands on white, between two rules. */
+
+.case { margin: 0; }
+
+.case__states {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  border-left: 1px solid var(--black);
+  background: var(--grey-faint);
+}
+
+.case__states--two { grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr); }
+
+.case__states--one { grid-template-columns: minmax(0, 1fr); }
+
+/* The phrase: its translation, then a column for each word. A column is
+   the word cut into its morphemes, its sounds, its script and its gloss.
+   In the gloss, a translation is bold and a label is plain. */
+
+.phrase__translation { padding-bottom: 0.45rem; border-bottom: 1px solid var(--grey-light); }
+
+.phrase__words { display: flex; flex-wrap: wrap; gap: 0.6rem 1.8rem; margin: 0.5rem 0 0.2rem; }
+
+.phrase__word { display: grid; gap: 0.1rem; }
+
+.phrase__cut { font-family: var(--mono); font-size: 0.9rem; font-weight: 600; }
+
+.phrase__sounds { font-family: var(--mono); font-size: 0.74rem; color: var(--contrast); }
+
+.phrase__script { font-size: 0.95rem; line-height: 1.5; }
+
+.phrase__gloss { font-family: var(--mono); font-size: 0.74rem; color: var(--grey); }
+
+.phrase__gloss strong { font-weight: 600; color: var(--black); }
+
+.case__state { display: grid; align-content: start; gap: 0.1rem; padding: 0.35rem 0.7rem 0.45rem; }
+
+.case__state--after { background: var(--white); box-shadow: inset 0 1px var(--grey-light), inset 0 -1px var(--grey-light); }
+
+.case__word { font-family: var(--mono); font-size: 0.85rem; font-weight: 600; }
+
+.case__class { font-size: 0.72rem; color: var(--grey); }
+
+.case__gloss { font-family: var(--mono); font-size: 0.74rem; white-space: pre-wrap; }
+
+.case__translation { margin-top: 0.25rem; font-size: 0.9rem; }
+
+.case__caption { margin: 0.2rem 0 0; font-size: 0.85rem; color: var(--grey); }
+
+.case--differs .case__states { border-left-width: 4px; }
+
+.rule--conflict .case__states { border-left-color: var(--red); }
+
+.rule--conflict .case--differs .case__state { background: var(--red-faint); }
+
+.rule--conflict .case__engine { color: var(--red); }
+
+.rule__label { font-weight: 700; margin-right: 0.3em; }
+
+@media (max-width: 58rem) {
+  .contents {
+    position: static;
+    width: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--black);
+    padding: 1.6rem 1.25rem 1.2rem;
+  }
+  .brand { margin-bottom: 1.2rem; }
+  .contents__colophon { padding-top: 1.2rem; }
+  .page { margin-left: 0; padding: 2rem 1.25rem 4rem; }
+  .prose h1 { font-size: 3rem; }
+  .case__states { grid-template-columns: minmax(0, 1fr); }
+}
