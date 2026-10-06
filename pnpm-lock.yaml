@@ -18,11 +18,11 @@ importers:
         specifier: 0.1.1
         version: 0.1.1
       markdown-it:
-        specifier: 14.3.0
-        version: 14.3.0
+        specifier: 14.3.1
+        version: 14.3.1
       markdown-it-anchor:
         specifier: 9.2.0
-        version: 9.2.0(@types/markdown-it@14.2.0)(markdown-it@14.3.0)
+        version: 9.2.0(@types/markdown-it@14.2.0)(markdown-it@14.3.1)
       yaml:
         specifier: 2.9.0
         version: 2.9.0
@@ -1293,8 +1293,8 @@ packages:
       '@types/markdown-it': '*'
       markdown-it: '*'
 
-  markdown-it@14.3.0:
-    resolution: {integrity: sha512-RCEsPjR+sr0x+AuYp601tKTkgFG4YEPLCzHST3cQ/fhlJkqAkz1L2/Qbp1j9qw5SBwQHFBoW8+hoN5xssOF0Tw==}
+  markdown-it@14.3.1:
+    resolution: {integrity: sha512-4Ej49aYTDFIQ+uBkfX8GBvJGccoARxxPep+7aWTs55ozbjQJpW9M26Fe53vnGgvLeVzva/amzjQQaQu9w0vMhA==}
     hasBin: true
 
   marked@18.0.14:
@@ -2339,7 +2339,7 @@ snapshots:
       '@types/istanbul-lib-coverage': 2.0.6
       collect-v8-coverage: 1.0.3
 
-  '@jest/test-sequencer@26.6.3(ts-node@8.10.2(typescript@4.9.5))':
+  '@jest/test-sequencer@26.6.3':
     dependencies:
       '@jest/test-result': 26.6.2
       graceful-fs: 4.2.11
@@ -2347,11 +2347,7 @@ snapshots:
       jest-runner: 26.6.3(ts-node@8.10.2(typescript@4.9.5))
       jest-runtime: 26.6.3(ts-node@8.10.2(typescript@4.9.5))
     transitivePeerDependencies:
-      - bufferutil
-      - canvas
       - supports-color
-      - ts-node
-      - utf-8-validate
 
   '@jest/transform@26.6.2':
     dependencies:
@@ -3279,7 +3275,7 @@ snapshots:
   jest-config@26.6.3(ts-node@8.10.2(typescript@4.9.5)):
     dependencies:
       '@babel/core': 7.29.0
-      '@jest/test-sequencer': 26.6.3(ts-node@8.10.2(typescript@4.9.5))
+      '@jest/test-sequencer': 26.6.3
       '@jest/types': 26.6.2
       babel-jest: 26.6.3(@babel/core@7.29.0)
       chalk: 4.1.2
@@ -3684,12 +3680,12 @@ snapshots:
     dependencies:
       object-visit: 1.0.1
 
-  markdown-it-anchor@9.2.0(@types/markdown-it@14.2.0)(markdown-it@14.3.0):
+  markdown-it-anchor@9.2.0(@types/markdown-it@14.2.0)(markdown-it@14.3.1):
     dependencies:
       '@types/markdown-it': 14.2.0
-      markdown-it: 14.3.0
+      markdown-it: 14.3.1
 
-  markdown-it@14.3.0:
+  markdown-it@14.3.1:
     dependencies:
       argparse: 2.0.1
       entities: 4.5.0
